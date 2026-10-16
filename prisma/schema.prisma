@@ -1,0 +1,189 @@
+// MG Estudio — modelo de datos.
+// La restricción anti doble-booking (EXCLUDE por profesional) vive en la migración
+// SQL manual `*_booking_no_overlap`, porque Prisma no la puede expresar.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  CANCELLED_BY_ADMIN
+  CANCELLED_BY_CLIENT
+  COMPLETED
+  NO_SHOW
+}
+
+enum PhotoKind {
+  REFERENCE
+  RESULT
+}
+
+enum NotificationType {
+  CONFIRMATION
+  MORNING
+  ONE_HOUR_BEFORE
+  CANCELLATION_BY_ADMIN
+  RESCHEDULE
+}
+
+enum NotificationChannel {
+  GATEWAY
+  WA_ME
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+model Service {
+  id              String    @id @default(cuid())
+  name            String
+  description     String
+  includes        String[]
+  priceArs        Int // pesos enteros, sin centavos
+  durationMinutes Int
+  isActive        Boolean   @default(true) // baja lógica: nunca DELETE
+  sortOrder       Int       @default(0)
+  createdAt       DateTime  @default(now()) @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @db.Timestamptz
+  bookings        Booking[]
+}
+
+model Staff {
+  id             String          @id @default(cuid())
+  name           String
+  authUserId     String?         @unique // uuid de Supabase Auth, si tiene login
+  isActive       Boolean         @default(true)
+  sortOrder      Int             @default(0)
+  createdAt      DateTime        @default(now()) @db.Timestamptz
+  bookings       Booking[]
+  workingHours   WorkingHour[]
+  blockedPeriods BlockedPeriod[]
+}
+
+model Client {
+  id        String       @id @default(cuid())
+  phoneE164 String       @unique // +549..., clave natural del CRM
+  firstName String
+  lastName  String?
+  createdAt DateTime     @default(now()) @db.Timestamptz
+  bookings  Booking[]
+  notes     ClientNote[]
+}
+
+model Booking {
+  id                  String        @id @default(cuid())
+  publicCode          String        @unique // booking_id legible, ej. MG-7K3Q9X
+  clientId            String
+  client              Client        @relation(fields: [clientId], references: [id])
+  staffId             String
+  staff               Staff         @relation(fields: [staffId], references: [id])
+  serviceId           String
+  service             Service       @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  serviceNameSnapshot String
+  priceArs            Int // snapshot al reservar
+  durationMinutes     Int // snapshot al reservar
+  bufferMinutes       Int // snapshot al reservar
+  startDatetime       DateTime      @db.Timestamptz
+  endDatetime         DateTime      @db.Timestamptz // start + duración + buffer
+  status              BookingStatus @default(CONFIRMED)
+  cancelTokenHash     String        @unique // se guarda el hash, nunca el token
+  cancelledAt         DateTime?     @db.Timestamptz
+  createdAt           DateTime      @default(now()) @db.Timestamptz
+  updatedAt           DateTime      @updatedAt @db.Timestamptz
+  photos              BookingPhoto[]
+  notes               ClientNote[]
+  notifications       NotificationLog[]
+
+  @@index([staffId, startDatetime])
+  @@index([startDatetime, status])
+  @@index([clientId])
+}
+
+model BookingPhoto {
+  id        String    @id @default(cuid())
+  bookingId String
+  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  kind      PhotoKind @default(REFERENCE)
+  secureUrl String
+  publicId  String    @unique
+  createdAt DateTime  @default(now()) @db.Timestamptz
+}
+
+model ClientNote {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  bookingId String?
+  booking   Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  body      String
+  authorId  String // uuid de Supabase Auth
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  @@index([clientId, createdAt])
+}
+
+// Singleton: siempre id = 1.
+model SystemConfig {
+  id                Int    @id @default(1)
+  bufferMinutes     Int    @default(15)
+  bookingWindowDays Int    @default(14)
+  sameDayCutoffTime String @default("18:00")
+  minCancelHours    Int    @default(2)
+  slotStepMinutes   Int    @default(15)
+  timezone          String @default("America/Argentina/Buenos_Aires")
+  businessName      String @default("MG Estudio")
+  address           String?
+  whatsappNumber    String?
+}
+
+// Varios tramos por día permiten pausa del mediodía. staffId null = todo el local.
+model WorkingHour {
+  id        String  @id @default(cuid())
+  staffId   String?
+  staff     Staff?  @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  weekday   Int // 0 = domingo ... 6 = sábado
+  startTime String // "09:00"
+  endTime   String // "20:00"
+
+  @@index([weekday])
+}
+
+// Feriados, descansos, imprevistos. staffId null = cierra todo el local.
+model BlockedPeriod {
+  id            String   @id @default(cuid())
+  staffId       String?
+  staff         Staff?   @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  startDatetime DateTime @db.Timestamptz
+  endDatetime   DateTime @db.Timestamptz
+  reason        String?
+
+  @@index([startDatetime, endDatetime])
+}
+
+model NotificationLog {
+  id         String              @id @default(cuid())
+  bookingId  String
+  booking    Booking             @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  type       NotificationType
+  channel    NotificationChannel
+  status     NotificationStatus  @default(PENDING)
+  providerId String?
+  error      String?
+  sentAt     DateTime?           @db.Timestamptz
+  createdAt  DateTime            @default(now()) @db.Timestamptz
+
+  // Idempotencia de los crons: un tipo de aviso por turno.
+  @@unique([bookingId, type])
+}

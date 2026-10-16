@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+/* MG Estudio — editorial crema y negro (tomado del logo) */
+:root {
+  --cream: #f3eae0;
+  --cream-deep: #e8dccd;
+  --ink: #0a0a0a;
+  --ink-soft: #3a3631;
+  --line: #d6c9b8;
+  --muted: #7a7166;
+
+  --background: var(--cream);
+  --foreground: var(--ink);
+  --radius: 2px;
+}
+
+@theme inline {
+  --color-cream: var(--cream);
+  --color-cream-deep: var(--cream-deep);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Estados de turno (agenda admin) */
+  --color-st-pending: #b7791f;
+  --color-st-confirmed: #2f6f4f;
+  --color-st-progress: #1f5f8b;
+  --color-st-done: #5b5650;
+  --color-st-cancelled: #a33a2f;
+  --color-st-noshow: #6b3fa0;
+
+  --font-display: var(--font-bodoni), "Didot", "Times New Roman", serif;
+  --font-sans: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Etiqueta tipo "DESING AND STYLE": mayúsculas con tracking ancho */
+.label-wide {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
