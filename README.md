@@ -63,5 +63,5 @@ src/lib/                utilidades puras (fechas en America/Argentina/Buenos_Air
 ## Reglas de negocio clave
 
 - Un turno ocupa `inicio → inicio + duración + margen`. La base rechaza solapamientos por profesional (`EXCLUDE` en PostgreSQL), así que dos reservas simultáneas nunca chocan.
-- Los servicios no se borran: se dan de baja (`isActive`). Cada turno guarda su propio precio y duración.
+- Cada turno guarda su propio nombre, precio y duración (snapshot). Un servicio se puede dar de baja (`isActive`, reversible) o eliminar definitivamente: en ese caso los turnos existentes se conservan, con las métricas intactas, pero sin vínculo al catálogo (`serviceId` en `NULL`).
 - El token de cancelación se entrega una sola vez; en la base solo está su hash.

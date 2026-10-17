@@ -205,7 +205,8 @@ export interface BookingView {
   id: string;
   publicCode: string;
   status: BookingStatus;
-  serviceId: string;
+  /** Nulo si el servicio fue eliminado del catálogo (el turno conserva su snapshot). */
+  serviceId: string | null;
   serviceName: string;
   firstName: string;
   startsAt: Date;

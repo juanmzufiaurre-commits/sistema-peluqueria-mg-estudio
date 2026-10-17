@@ -1,8 +1,8 @@
 "use client";
 
-import { Loader2, Pencil, Plus } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState, useTransition } from "react";
-import { createServiceAction, setServiceActiveAction, updateServiceAction } from "@/actions/services";
+import { createServiceAction, deleteServiceAction, setServiceActiveAction, updateServiceAction } from "@/actions/services";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Field, Input } from "@/components/ui/field";
@@ -17,12 +17,30 @@ export interface ServiceRow {
   priceArs: number;
   durationMinutes: number;
   isActive: boolean;
+  /** Turnos que usaron este servicio (todos los estados). */
+  bookingCount: number;
+  /** De esos, los activos que todavía no ocurrieron. */
+  upcomingCount: number;
 }
 
 export function ServiceManager({ services }: { services: ServiceRow[] }) {
   const [editing, setEditing] = useState<ServiceRow | "new" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [toDelete, setToDelete] = useState<ServiceRow | null>(null);
   const [pending, startTransition] = useTransition();
+
+  function remove() {
+    if (!toDelete) return;
+    setError(null);
+    startTransition(async () => {
+      const r = await deleteServiceAction(toDelete.id);
+      if (r.success) setToDelete(null);
+      else {
+        setToDelete(null);
+        setError(r.error);
+      }
+    });
+  }
 
   function toggle(s: ServiceRow) {
     setError(null);
@@ -35,7 +53,7 @@ export function ServiceManager({ services }: { services: ServiceRow[] }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-ink-soft">Los servicios dados de baja no se muestran al público pero se conservan en el historial.</p>
+        <p className="text-sm text-ink-soft">Dar de baja oculta el servicio al público y se puede revertir. Eliminar lo borra definitivamente.</p>
         <Button size="sm" onClick={() => setEditing("new")}>
           <Plus aria-hidden className="size-4" /> Nuevo servicio
         </Button>
@@ -65,12 +83,48 @@ export function ServiceManager({ services }: { services: ServiceRow[] }) {
             <Button variant="ghost" size="sm" onClick={() => toggle(s)} disabled={pending}>
               {s.isActive ? "Dar de baja" : "Reactivar"}
             </Button>
+            <Button variant="ghost" size="sm" className="text-st-cancelled hover:bg-st-cancelled/10" onClick={() => setToDelete(s)} disabled={pending}>
+              <Trash2 aria-hidden className="size-4" /> Eliminar
+            </Button>
           </li>
         ))}
       </ul>
 
       <Dialog open={editing !== null} onClose={() => setEditing(null)} title={editing === "new" ? "Nuevo servicio" : "Editar servicio"}>
         {editing && <ServiceForm key={editing === "new" ? "new" : editing.id} service={editing === "new" ? null : editing} onDone={() => setEditing(null)} />}
+      </Dialog>
+
+      <Dialog open={toDelete !== null} onClose={() => setToDelete(null)} title="Eliminar servicio">
+        {toDelete && (
+          <div className="flex flex-col gap-5">
+            <p>
+              Vas a eliminar <strong>{toDelete.name}</strong> definitivamente. Esta acción no se puede deshacer.
+            </p>
+            {toDelete.isActive && <p className="text-sm text-ink-soft">Dejará de mostrarse a los clientes en el mismo momento.</p>}
+            {toDelete.bookingCount > 0 ? (
+              <p className="rounded-sm bg-cream-deep p-4 text-sm">
+                Tiene <strong>{toDelete.bookingCount}</strong> {toDelete.bookingCount === 1 ? "turno" : "turnos"} en el historial
+                {toDelete.upcomingCount > 0 && (
+                  <>
+                    {" "}
+                    (<strong>{toDelete.upcomingCount}</strong> {toDelete.upcomingCount === 1 ? "próximo" : "próximos"})
+                  </>
+                )}
+                . Se conservan con su nombre, precio y duración, y las métricas no cambian, pero ya no quedarán vinculados a un servicio del catálogo.
+              </p>
+            ) : (
+              <p className="text-sm text-muted">No tiene turnos asociados.</p>
+            )}
+            <div className="flex gap-3">
+              <Button variant="ghost" className="flex-1" onClick={() => setToDelete(null)} disabled={pending}>
+                Volver
+              </Button>
+              <Button className="flex-1 bg-st-cancelled hover:bg-st-cancelled/90" onClick={remove} disabled={pending}>
+                {pending && <Loader2 aria-hidden className="size-4 animate-spin" />} Eliminar
+              </Button>
+            </div>
+          </div>
+        )}
       </Dialog>
     </div>
   );

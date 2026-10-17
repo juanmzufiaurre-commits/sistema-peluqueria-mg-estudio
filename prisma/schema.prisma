@@ -89,8 +89,9 @@ model Booking {
   client              Client        @relation(fields: [clientId], references: [id])
   staffId             String
   staff               Staff         @relation(fields: [staffId], references: [id])
-  serviceId           String
-  service             Service       @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  // Nulo si el servicio se eliminó: el turno conserva su propio snapshot de nombre, precio y duración.
+  serviceId           String?
+  service             Service?      @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   serviceNameSnapshot String
   priceArs            Int // snapshot al reservar
   durationMinutes     Int // snapshot al reservar

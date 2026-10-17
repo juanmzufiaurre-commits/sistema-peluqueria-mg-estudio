@@ -37,9 +37,27 @@ export async function updateServiceAction(id: unknown, raw: unknown): Promise<Ac
   return ok();
 }
 
+/**
+ * Eliminación definitiva. Los turnos existentes (pasados o futuros) no se tocan: guardan su propio
+ * nombre, precio y duración, así que el historial y las métricas siguen igual. Solo pierden el
+ * vínculo con el catálogo (serviceId queda en NULL por la clave foránea ON DELETE SET NULL).
+ */
+export async function deleteServiceAction(id: unknown): Promise<ActionResult> {
+  if (!(await getAdminUser())) return fail(UNAUTHORIZED);
+  const parsed = z.string().min(1).safeParse(id);
+  if (!parsed.success) return fail("Servicio inválido");
+
+  const service = await db.service.findUnique({ where: { id: parsed.data }, select: { id: true } });
+  if (!service) return fail("El servicio no existe o ya fue eliminado.");
+
+  await db.service.delete({ where: { id: service.id } });
+  refresh();
+  return ok();
+}
+
 const activeSchema = z.object({ id: z.string().min(1), isActive: z.boolean() });
 
-/** Baja lógica: nunca se borra un servicio, para no romper el historial ni las métricas. */
+/** Baja lógica: oculta el servicio al público sin perderlo; se puede reactivar. */
 export async function setServiceActiveAction(raw: unknown): Promise<ActionResult> {
   if (!(await getAdminUser())) return fail(UNAUTHORIZED);
   const parsed = activeSchema.safeParse(raw);
