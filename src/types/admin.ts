@@ -21,6 +21,14 @@ export interface ClientHistoryEntry {
   status: BookingStatusValue;
 }
 
+export interface ClientResultPhoto {
+  id: string;
+  url: string;
+  bookingId: string;
+  startsAt: string; // fecha del turno al que pertenece
+  serviceName: string;
+}
+
 export interface AgendaClient {
   id: string;
   firstName: string;
@@ -31,6 +39,8 @@ export interface AgendaClient {
   favoriteService: string | null;
   history: ClientHistoryEntry[]; // otros turnos, más recientes primero
   notes: AgendaNote[];
+  /** Fotos del resultado de todos sus turnos, más recientes primero. */
+  resultPhotos: ClientResultPhoto[];
 }
 
 export interface AgendaBooking {

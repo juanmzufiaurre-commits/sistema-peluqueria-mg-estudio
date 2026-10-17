@@ -39,13 +39,15 @@ export interface UploadedPhoto {
   publicId: string;
 }
 
-export async function uploadReferencePhoto(file: File): Promise<UploadedPhoto> {
+/** Comprime a WebP y sube directo a Cloudinary con una firma pedida a `signEndpoint`. */
+export async function uploadPhoto(file: File, signEndpoint: string): Promise<UploadedPhoto> {
   if (!ACCEPTED_TYPES.includes(file.type)) throw new Error("Usá fotos JPG, PNG o WebP");
   if (file.size > MAX_INPUT_BYTES) throw new Error("La foto pesa demasiado (máx. 12 MB)");
 
   const blob = await compressToWebp(file);
 
-  const signRes = await fetch("/api/uploads/sign", { method: "POST" });
+  const signRes = await fetch(signEndpoint, { method: "POST" });
+  if (signRes.status === 429) throw new Error("Demasiados intentos. Probá en unos minutos.");
   if (!signRes.ok) throw new Error("La carga de fotos no está disponible por ahora");
   const sign = (await signRes.json()) as SignResponse;
 
@@ -62,3 +64,6 @@ export async function uploadReferencePhoto(file: File): Promise<UploadedPhoto> {
   const data = (await res.json()) as { secure_url: string; public_id: string };
   return { secureUrl: data.secure_url, publicId: data.public_id };
 }
+
+export const uploadReferencePhoto = (file: File): Promise<UploadedPhoto> => uploadPhoto(file, "/api/uploads/sign");
+export const uploadResultPhoto = (file: File): Promise<UploadedPhoto> => uploadPhoto(file, "/api/admin/uploads/sign");

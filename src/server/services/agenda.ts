@@ -41,13 +41,18 @@ export async function getDayAgenda(date: string): Promise<AgendaBooking[]> {
   if (bookings.length === 0) return [];
 
   const clientIds = [...new Set(bookings.map((b) => b.clientId))];
-  const [allBookings, allNotes] = await Promise.all([
+  const [allBookings, allNotes, allResultPhotos] = await Promise.all([
     db.booking.findMany({
       where: { clientId: { in: clientIds } },
       orderBy: { startDatetime: "desc" },
       select: { id: true, clientId: true, startDatetime: true, serviceNameSnapshot: true, status: true },
     }),
     db.clientNote.findMany({ where: { clientId: { in: clientIds } }, orderBy: { createdAt: "desc" } }),
+    db.bookingPhoto.findMany({
+      where: { kind: "RESULT", booking: { clientId: { in: clientIds } } },
+      include: { booking: { select: { clientId: true, startDatetime: true, serviceNameSnapshot: true } } },
+      orderBy: { booking: { startDatetime: "desc" } },
+    }),
   ]);
 
   const clientView = (clientId: string, currentBookingId: string): Omit<AgendaClient, "id" | "firstName" | "lastName" | "phoneE164"> => {
@@ -68,6 +73,15 @@ export async function getDayAgenda(date: string): Promise<AgendaBooking[]> {
       notes: allNotes
         .filter((n) => n.clientId === clientId)
         .map((n) => ({ id: n.id, body: n.body, createdAt: n.createdAt.toISOString() })),
+      resultPhotos: allResultPhotos
+        .filter((p) => p.booking.clientId === clientId)
+        .map((p) => ({
+          id: p.id,
+          url: p.secureUrl,
+          bookingId: p.bookingId,
+          startsAt: p.booking.startDatetime.toISOString(),
+          serviceName: p.booking.serviceNameSnapshot,
+        })),
     };
   };
 

@@ -12,6 +12,7 @@ import { WA_TEMPLATE_LABEL, waLink, waMessage, type WaContext, type WaTemplate }
 import type { AgendaBooking } from "@/types/admin";
 import { PhotoGallery } from "./photo-gallery";
 import { RescheduleDialog } from "./reschedule-dialog";
+import { ResultPhotos } from "./result-photos";
 
 interface Props {
   bookings: AgendaBooking[];
@@ -82,6 +83,9 @@ function BookingCard({ booking: b, expanded, onToggle, ctx }: { booking: AgendaB
           <Details b={b} />
           <Section title="Fotos de referencia">
             <PhotoGallery photos={b.photos.filter((p) => p.kind === "REFERENCE")} />
+          </Section>
+          <Section title="Fotos del resultado">
+            <ResultPhotos booking={b} />
           </Section>
           <WhatsAppActions b={b} ctx={ctx} />
           <ClientCrm b={b} />

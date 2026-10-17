@@ -39,6 +39,15 @@ Comandos útiles: `npm test`, `npm run lint`, `npm run typecheck`, `npm run buil
 
 Las migraciones **no** corren en el build: se aplican a mano con `npm run db:migrate` (con `.env` local apuntando a la base de producción).
 
+## Fotos (Cloudinary)
+
+1. Crear una cuenta gratuita en cloudinary.com y copiar, desde el *Dashboard*, el **Cloud name**, la **API Key** y el **API Secret**.
+2. Cargarlos como `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` y `CLOUDINARY_API_SECRET` (en `.env` y en Vercel).
+3. Las fotos se comprimen a WebP (máx. 1080p) en el navegador y se suben directo a Cloudinary con una firma del servidor. En la base solo se guardan `secure_url` y `public_id`.
+   - `mg-estudio/reference/`: fotos de referencia que sube el cliente al reservar (endpoint público con límite de uso).
+   - `mg-estudio/results/`: fotos del resultado que sube el local desde la ficha del turno (solo admin).
+4. El servidor solo acepta fotos de su propia cuenta y carpeta; no se pueden asociar URLs ajenas.
+
 ## Estructura
 
 ```

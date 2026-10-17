@@ -1,6 +1,7 @@
 "use server";
 
 import { fail, ok, type ActionResult } from "@/lib/action-result";
+import { isOwnConfiguredAsset } from "@/lib/cloudinary";
 import { createBookingSchema } from "@/lib/validation/booking";
 import { BookingError, createBooking } from "@/server/services/booking";
 
@@ -21,6 +22,9 @@ export async function createBookingAction(raw: unknown): Promise<ActionResult<Bo
 
   // Honeypot completado: es un bot. No damos pistas.
   if (data.website) return fail("No pudimos procesar la reserva.");
+
+  // Solo aceptamos fotos que subimos nosotros a nuestra cuenta (no URLs ajenas).
+  if (!data.photos.every((p) => isOwnConfiguredAsset("reference", p))) return fail("Alguna foto no es válida. Quitala y subila de nuevo.");
 
   try {
     const booking = await createBooking({
