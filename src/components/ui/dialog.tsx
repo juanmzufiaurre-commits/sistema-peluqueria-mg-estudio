@@ -33,7 +33,7 @@ export function Dialog({ open, onClose, title, variant = "modal", children }: Pr
         if (e.target === ref.current) onClose();
       }}
       className={cn(
-        "bg-cream text-ink backdrop:bg-ink/55 open:flex",
+        "bg-cream text-ink backdrop:bg-black/75 open:flex",
         variant === "modal" && "m-auto max-h-[90dvh] w-[min(92vw,34rem)] flex-col overflow-hidden rounded-sm",
         variant === "drawer" && "m-0 ml-auto h-dvh max-h-none w-[min(100vw,36rem)] flex-col",
         variant === "plain" && "m-auto max-h-[94dvh] max-w-[94vw] flex-col bg-transparent",

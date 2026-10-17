@@ -20,7 +20,7 @@ export function MetricsPanel({ day, month, monthLabel }: { day: DayMetrics; mont
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-sm border border-line bg-white/50 p-4">
+    <div className="rounded-sm border border-line bg-surface p-4">
       <dt className="text-sm text-muted">{label}</dt>
       <dd className="mt-1 font-display text-3xl leading-none">{value}</dd>
     </div>

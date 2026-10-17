@@ -94,7 +94,7 @@ export function RescheduleDialog({ booking: b, ctx, open, onClose }: { booking: 
                     type="button"
                     onClick={() => setChosen(iso)}
                     aria-pressed={chosen === iso}
-                    className={`h-10 w-full rounded-sm border text-sm transition-colors ${chosen === iso ? "border-ink bg-ink text-cream" : "border-line bg-white/50 hover:border-ink"}`}
+                    className={`h-10 w-full rounded-sm border text-sm transition-colors ${chosen === iso ? "border-ink bg-ink text-cream" : "border-line bg-surface hover:border-ink"}`}
                   >
                     {formatTime(iso)}
                   </button>

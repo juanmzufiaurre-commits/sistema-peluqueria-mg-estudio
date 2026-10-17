@@ -49,7 +49,7 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
           <Input id="bufferMinutes" name="bufferMinutes" type="number" min={0} max={120} defaultValue={initial.bufferMinutes} required />
         </Field>
         <Field label="Grilla de horarios" htmlFor="slotStepMinutes" hint="Cada cuántos minutos se ofrece un horario">
-          <select id="slotStepMinutes" name="slotStepMinutes" defaultValue={initial.slotStepMinutes} className="h-12 w-full rounded-sm border border-line bg-white/60 px-4">
+          <select id="slotStepMinutes" name="slotStepMinutes" defaultValue={initial.slotStepMinutes} className="h-12 w-full rounded-sm border border-line bg-surface px-4">
             {STEPS.map((s) => (
               <option key={s} value={s}>
                 Cada {s} min

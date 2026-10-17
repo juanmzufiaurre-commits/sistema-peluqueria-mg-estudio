@@ -17,8 +17,8 @@ export const STATUS_LABEL: Record<BookingStatusValue, string> = {
   IN_PROGRESS: "En curso",
   COMPLETED: "Completado",
   NO_SHOW: "No asistió",
-  CANCELLED_BY_ADMIN: "Cancelado por el local",
-  CANCELLED_BY_CLIENT: "Cancelado por el cliente",
+  CANCELLED_BY_ADMIN: "Canceló local",
+  CANCELLED_BY_CLIENT: "Canceló cliente",
 };
 
 /** Clases de Tailwind (tokens st-* de globals.css) para la etiqueta de cada estado. */

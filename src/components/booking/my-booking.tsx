@@ -120,7 +120,7 @@ export function MyBooking({ token, info, booking }: Props) {
         {mode === "confirm" && newSlot && (
           <div className="flex flex-col gap-6">
             <h1 className="font-display text-3xl font-semibold">Confirmá el cambio</h1>
-            <div className="rounded-sm border border-line bg-white/50 p-5 text-sm">
+            <div className="rounded-sm border border-line bg-surface p-5 text-sm">
               <p className="text-muted line-through">
                 {formatLongDate(startsAt)} · {formatTime(startsAt)} hs
               </p>
@@ -155,7 +155,7 @@ export function MyBooking({ token, info, booking }: Props) {
         </p>
       )}
 
-      <section className="rounded-sm border border-ink bg-white/60">
+      <section className="rounded-sm border border-ink bg-surface">
         <div className="border-b border-dashed border-ink/40 p-5 text-center">
           <p className="label-wide text-muted">{active ? "Tu turno" : STATUS_LABEL[status]}</p>
           <p className="mt-2 font-display text-2xl">{formatLongDate(startsAt)}</p>

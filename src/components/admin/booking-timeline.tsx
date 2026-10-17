@@ -58,7 +58,7 @@ function BookingCard({ booking: b, expanded, onToggle, ctx }: { booking: AgendaB
   const panelId = `booking-${b.id}`;
 
   return (
-    <article className={cn("rounded-sm border bg-white/50", expanded ? "border-ink" : "border-line", cancelled && "opacity-70")}>
+    <article className={cn("rounded-sm border bg-surface", expanded ? "border-ink" : "border-line", cancelled && "opacity-70")}>
       <button
         type="button"
         onClick={onToggle}
@@ -204,7 +204,7 @@ function ClientCrm({ b }: { b: AgendaBooking }) {
           onChange={(e) => setBody(e.target.value)}
           rows={3}
           placeholder="Máquina nº 2 a los costados, tijera arriba, producto usado…"
-          className="w-full rounded-sm border border-line bg-white/60 p-3 text-sm placeholder:text-muted/70 focus-visible:border-ink"
+          className="w-full rounded-sm border border-line bg-surface p-3 text-sm placeholder:text-muted/70 focus-visible:border-ink"
         />
         {error && (
           <p role="alert" className="text-sm text-st-cancelled">
@@ -261,7 +261,7 @@ function Actions({ b, ctx }: { b: AgendaBooking; ctx: WaContext }) {
               value={b.status}
               disabled={pending}
               onChange={(e) => changeStatus(e.target.value as BookingStatusValue)}
-              className="h-10 rounded-sm border border-line bg-white/60 px-3 text-sm"
+              className="h-10 rounded-sm border border-line bg-surface px-3 text-sm"
             >
               {OPERATIVE.map((s) => (
                 <option key={s} value={s}>

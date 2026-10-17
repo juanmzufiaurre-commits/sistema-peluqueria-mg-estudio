@@ -52,7 +52,7 @@ export function Ticket({ receipt, businessName, address, onNewBooking }: Props) 
         <p className="text-ink-soft">Te esperamos en {businessName}.</p>
       </div>
 
-      <section aria-label="Comprobante" className="rounded-sm border border-ink bg-white/60">
+      <section aria-label="Comprobante" className="rounded-sm border border-ink bg-surface">
         <div className="border-b border-dashed border-ink/40 p-5 text-center">
           <p className="label-wide text-muted">Código de turno</p>
           <p className="mt-2 font-display text-3xl tracking-[0.15em]">{receipt.publicCode}</p>

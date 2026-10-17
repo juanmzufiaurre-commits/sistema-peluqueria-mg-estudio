@@ -18,7 +18,7 @@ export function DayRail({ days, selected, today }: { days: DayCount[]; selected:
                 scroll={false}
                 className={cn(
                   "flex items-center justify-between gap-4 rounded-sm border px-4 py-3 transition-colors",
-                  active ? "border-ink bg-ink text-cream" : "border-line bg-white/50 hover:border-ink",
+                  active ? "border-ink bg-ink text-cream" : "border-line bg-surface hover:border-ink",
                 )}
               >
                 <span className="flex items-baseline gap-2">

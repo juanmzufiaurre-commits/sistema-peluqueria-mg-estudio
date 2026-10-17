@@ -42,7 +42,7 @@ export function HoursEditor({ initial }: { initial: HourRange[] }) {
         {DAYS.map((d) => {
           const dayRanges = ranges.map((r, i) => ({ r, i })).filter(({ r }) => r.weekday === d.n);
           return (
-            <li key={d.n} className="flex flex-wrap items-start gap-x-4 gap-y-2 rounded-sm border border-line bg-white/50 p-4">
+            <li key={d.n} className="flex flex-wrap items-start gap-x-4 gap-y-2 rounded-sm border border-line bg-surface p-4">
               <span className="w-24 pt-2 font-medium">{d.label}</span>
               <div className="flex flex-1 flex-col gap-2">
                 {dayRanges.length === 0 && <span className="pt-2 text-sm text-muted">Cerrado</span>}
@@ -53,7 +53,7 @@ export function HoursEditor({ initial }: { initial: HourRange[] }) {
                       aria-label={`${d.label}: apertura`}
                       value={r.start}
                       onChange={(e) => update(i, { start: e.target.value })}
-                      className="h-10 rounded-sm border border-line bg-white/60 px-2"
+                      className="h-10 rounded-sm border border-line bg-surface px-2"
                     />
                     <span aria-hidden>–</span>
                     <input
@@ -61,7 +61,7 @@ export function HoursEditor({ initial }: { initial: HourRange[] }) {
                       aria-label={`${d.label}: cierre`}
                       value={r.end}
                       onChange={(e) => update(i, { end: e.target.value })}
-                      className="h-10 rounded-sm border border-line bg-white/60 px-2"
+                      className="h-10 rounded-sm border border-line bg-surface px-2"
                     />
                     <button type="button" aria-label={`Quitar tramo del ${d.label}`} onClick={() => setRanges((rs) => rs.filter((_, k) => k !== i))} className="flex size-10 items-center justify-center hover:bg-cream-deep">
                       <Trash2 className="size-4" />

@@ -60,7 +60,7 @@ export function StepDateTime({ availability, onSelect, onRetry }: Props) {
               onClick={() => setSelected(d.date)}
               className={cn(
                 "flex min-w-16 shrink-0 snap-start flex-col items-center gap-1 rounded-sm border px-3 py-3 transition-colors",
-                active ? "border-ink bg-ink text-cream" : "border-line bg-white/50 hover:border-ink",
+                active ? "border-ink bg-ink text-cream" : "border-line bg-surface hover:border-ink",
                 disabled && "cursor-not-allowed opacity-35 hover:border-line",
               )}
             >
@@ -80,7 +80,7 @@ export function StepDateTime({ availability, onSelect, onRetry }: Props) {
               <button
                 type="button"
                 onClick={() => onSelect(iso)}
-                className="h-12 w-full rounded-sm border border-line bg-white/50 text-base transition-colors hover:border-ink hover:bg-ink hover:text-cream"
+                className="h-12 w-full rounded-sm border border-line bg-surface text-base transition-colors hover:border-ink hover:bg-ink hover:text-cream"
               >
                 {formatTime(iso)}
               </button>

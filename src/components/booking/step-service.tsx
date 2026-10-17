@@ -14,7 +14,7 @@ export function StepService({ services, onSelect }: { services: PublicService[];
           <button
             type="button"
             onClick={() => onSelect(s)}
-            className="group flex w-full flex-col gap-4 rounded-sm border border-line bg-white/50 p-5 text-left transition-colors hover:border-ink active:bg-cream-deep"
+            className="group flex w-full flex-col gap-4 rounded-sm border border-line bg-surface p-5 text-left transition-colors hover:border-ink active:bg-cream-deep"
           >
             <div className="flex items-baseline justify-between gap-4">
               <h3 className="font-display text-2xl font-semibold leading-tight">{s.name}</h3>

@@ -40,7 +40,7 @@ export function BlocksManager({ blocks }: { blocks: BlockRow[] }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <form key={formKey} action={create} className="flex flex-col gap-4 rounded-sm border border-line bg-white/50 p-4">
+      <form key={formKey} action={create} className="flex flex-col gap-4 rounded-sm border border-line bg-surface p-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Desde" htmlFor="startDate">
             <Input id="startDate" name="startDate" type="date" required />
@@ -74,7 +74,7 @@ export function BlocksManager({ blocks }: { blocks: BlockRow[] }) {
       ) : (
         <ul className="flex flex-col gap-2">
           {blocks.map((b) => (
-            <li key={b.id} className="flex items-center justify-between gap-4 rounded-sm border border-line bg-white/50 p-3">
+            <li key={b.id} className="flex items-center justify-between gap-4 rounded-sm border border-line bg-surface p-3">
               <span>
                 <span className="block">{b.label}</span>
                 {b.reason && <span className="block text-sm text-muted">{b.reason}</span>}

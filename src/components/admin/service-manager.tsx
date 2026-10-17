@@ -49,7 +49,7 @@ export function ServiceManager({ services }: { services: ServiceRow[] }) {
 
       <ul className="flex flex-col gap-3">
         {services.map((s) => (
-          <li key={s.id} className={cn("flex flex-wrap items-center gap-4 rounded-sm border border-line bg-white/50 p-4", !s.isActive && "opacity-60")}>
+          <li key={s.id} className={cn("flex flex-wrap items-center gap-4 rounded-sm border border-line bg-surface p-4", !s.isActive && "opacity-60")}>
             <div className="min-w-0 flex-1">
               <p className="font-display text-xl font-semibold">
                 {s.name}{" "}
@@ -110,7 +110,7 @@ function ServiceForm({ service, onDone }: { service: ServiceRow | null; onDone: 
           name="includes"
           rows={5}
           defaultValue={service?.includes.join("\n")}
-          className="w-full rounded-sm border border-line bg-white/60 p-3 text-base focus-visible:border-ink"
+          className="w-full rounded-sm border border-line bg-surface p-3 text-base focus-visible:border-ink"
         />
       </Field>
       <div className="grid grid-cols-2 gap-4">

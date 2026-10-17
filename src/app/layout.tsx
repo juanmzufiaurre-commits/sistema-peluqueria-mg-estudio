@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Reservá tu turno en MG Estudio.",
 };
 
-export const viewport: Viewport = { themeColor: "#f3eae0" };
+export const viewport: Viewport = { themeColor: "#0a0a0a" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
