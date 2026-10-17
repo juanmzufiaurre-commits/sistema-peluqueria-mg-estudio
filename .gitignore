@@ -46,3 +46,10 @@ next-env.d.ts
 
 tsconfig.tsbuildinfo
 .claude/
+
+# archivos comprimidos / respaldos (nunca al repo)
+*.rar
+*.zip
+*.7z
+*.tar
+*.tar.gz

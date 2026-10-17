@@ -9,6 +9,7 @@ import type { ActionResult } from "@/lib/action-result";
 import { formatArs, formatDuration } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { PublicInfo, PublicService } from "@/server/services/catalog";
+import { useBookingFlow } from "./booking-flow";
 import { StepContact } from "./step-contact";
 import { StepDateTime, StepDateTimeSkeleton } from "./step-datetime";
 import { StepService } from "./step-service";
@@ -36,9 +37,11 @@ export function BookingWizard({ services, info }: { services: PublicService[]; i
   const [availability, setAvailability] = useState<Promise<ActionResult<AvailableDay[]>> | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
+  const { setFinished } = useBookingFlow();
 
   function go(next: Step) {
     setStep(next);
+    setFinished(next === "done"); // con el comprobante a la vista, la portada oculta "Reservar turno"
     topRef.current?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
   }
 
