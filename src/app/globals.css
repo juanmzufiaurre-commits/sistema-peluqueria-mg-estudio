@@ -115,3 +115,38 @@ body {
     opacity: 0;
   }
 }
+
+/* Intro de la portada ya vista (o menos movimiento): se muestra acomodada desde el primer cuadro,
+   sin esperar a que cargue el JS. Pisa los estilos en línea iniciales de framer-motion. */
+html[data-intro-seen] .hero-shell {
+  height: auto !important;
+}
+html[data-intro-seen] .hero-logo {
+  padding-top: 4.5rem !important;
+}
+html[data-intro-seen] .hero-nav {
+  margin-top: 2.5rem !important;
+}
+html[data-intro-seen] .hero-nav li,
+html[data-intro-seen] .hero-content {
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-shell {
+    height: auto !important;
+  }
+  .hero-logo {
+    padding-top: 4.5rem !important;
+  }
+  .hero-nav {
+    margin-top: 2.5rem !important;
+  }
+  .hero-nav li,
+  .hero-content {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}

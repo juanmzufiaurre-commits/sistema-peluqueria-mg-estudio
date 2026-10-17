@@ -12,21 +12,31 @@ const SECTIONS: { href: "/" | "/profesionales" | "/catalogo"; label: string; ico
   { href: "/catalogo", label: "Catálogo", icon: Images },
 ];
 
+// Entrada después de la intro: primero "Agendar turno" (centro) y enseguida los costados.
+const REVEAL_DELAY = [0.16, 0, 0.16];
+const REVEAL_FROM_X = [-14, 0, 14];
+
 /**
  * Menú de los tres apartados públicos. El activo se ve en crema y un poco más grande; un aro
  * se desliza hasta su ícono para que se entienda en qué apartado estás.
+ * `revealed` en false lo deja oculto (desenfocado) hasta que termina la intro de la portada.
  */
-export function SectionNav() {
+export function SectionNav({ revealed = true, instant = false }: { revealed?: boolean; instant?: boolean }) {
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
 
   return (
-    <nav aria-label="Apartados" className="w-full max-w-xl pb-6 pt-10">
+    <nav aria-label="Apartados" className="w-full max-w-xl pb-6 pt-8" inert={!revealed}>
       <ul className="grid grid-cols-3 items-end">
-        {SECTIONS.map(({ href, label, icon: Icon }) => {
+        {SECTIONS.map(({ href, label, icon: Icon }, i) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
-            <li key={href}>
+            <motion.li
+              key={href}
+              initial={false}
+              animate={revealed ? { opacity: 1, x: 0, y: 0, filter: "blur(0px)" } : { opacity: 0, x: REVEAL_FROM_X[i], y: 14, filter: "blur(10px)" }}
+              transition={reduceMotion || instant ? { duration: 0 } : { duration: 0.7, delay: revealed ? REVEAL_DELAY[i] : 0, ease: [0.22, 1, 0.36, 1] }}
+            >
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
@@ -61,7 +71,7 @@ export function SectionNav() {
                   {label}
                 </span>
               </Link>
-            </li>
+            </motion.li>
           );
         })}
       </ul>
