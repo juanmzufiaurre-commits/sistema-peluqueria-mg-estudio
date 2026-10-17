@@ -1,10 +1,10 @@
 "use client";
 
-import { CalendarPlus, Check, Copy, Download } from "lucide-react";
+import { CalendarPlus, Check, Copy } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { BookingReceipt } from "@/actions/bookings";
 import { ButtonLink, Button } from "@/components/ui/button";
-import { buildIcs, googleCalendarUrl, type CalendarEvent } from "@/lib/ics";
+import { googleCalendarUrl, type CalendarEvent } from "@/lib/google-calendar";
 import { formatArs, formatDuration, formatLongDate, formatTime } from "@/lib/format";
 
 interface Props {
@@ -20,7 +20,6 @@ export function Ticket({ receipt, businessName, address, onNewBooking }: Props) 
   const event: CalendarEvent = useMemo(() => {
     const start = new Date(receipt.startsAt);
     return {
-      uid: receipt.publicCode,
       title: `${receipt.serviceName} — ${businessName}`,
       description: `Turno ${receipt.publicCode}`,
       location: address ?? undefined,
@@ -29,7 +28,6 @@ export function Ticket({ receipt, businessName, address, onNewBooking }: Props) 
     };
   }, [receipt, businessName, address]);
 
-  const icsHref = useMemo(() => `data:text/calendar;charset=utf-8,${encodeURIComponent(buildIcs(event))}`, [event]);
   const cancelUrl = `${window.location.origin}/turno/${receipt.cancelToken}`;
 
   async function copyCancelLink() {
@@ -70,9 +68,6 @@ export function Ticket({ receipt, businessName, address, onNewBooking }: Props) 
       <div className="flex flex-col gap-3">
         <ButtonLink href={googleCalendarUrl(event)} target="_blank" rel="noopener noreferrer" variant="outline">
           <CalendarPlus aria-hidden className="size-4" /> Agregar a Google Calendar
-        </ButtonLink>
-        <ButtonLink href={icsHref} download={`turno-${receipt.publicCode}.ics`} variant="ghost">
-          <Download aria-hidden className="size-4" /> Descargar .ics
         </ButtonLink>
       </div>
 
