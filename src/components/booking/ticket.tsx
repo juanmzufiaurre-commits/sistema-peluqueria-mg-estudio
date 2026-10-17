@@ -4,8 +4,9 @@ import { CalendarPlus, Check, Copy } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { BookingReceipt } from "@/actions/bookings";
 import { ButtonLink, Button } from "@/components/ui/button";
+import { Price } from "@/components/ui/price";
 import { googleCalendarUrl, type CalendarEvent } from "@/lib/google-calendar";
-import { formatArs, formatDuration, formatLongDate, formatTime } from "@/lib/format";
+import { formatDuration, formatLongDate, formatTime } from "@/lib/format";
 
 interface Props {
   receipt: BookingReceipt;
@@ -46,14 +47,14 @@ export function Ticket({ receipt, businessName, address, onNewBooking }: Props) 
         <span className="flex size-12 items-center justify-center rounded-full bg-ink text-cream">
           <Check aria-hidden className="size-6" />
         </span>
-        <h2 className="font-display text-3xl font-semibold">¡Turno confirmado!</h2>
+        <h2 className="text-[1.85rem] font-medium leading-tight tracking-tight">¡Turno confirmado!</h2>
         <p className="text-ink-soft">Te esperamos en {businessName}.</p>
       </div>
 
       <section aria-label="Comprobante" className="rounded-sm border border-ink bg-surface">
         <div className="border-b border-dashed border-ink/40 p-5 text-center">
           <p className="label-wide text-muted">Código de turno</p>
-          <p className="mt-2 font-display text-3xl tracking-[0.15em]">{receipt.publicCode}</p>
+          <p className="mt-2 text-3xl font-light tabular-nums tracking-[0.2em]">{receipt.publicCode}</p>
         </div>
         <dl className="flex flex-col gap-3 p-5 text-sm">
           <Row label="Servicio" value={receipt.serviceName} />
@@ -61,7 +62,7 @@ export function Ticket({ receipt, businessName, address, onNewBooking }: Props) 
           <Row label="Hora" value={`${formatTime(receipt.startsAt)} hs`} />
           <Row label="Duración" value={formatDuration(receipt.durationMinutes)} />
           {address && <Row label="Lugar" value={address} />}
-          <Row label="Total" value={<span className="font-display text-lg">{formatArs(receipt.priceArs)}</span>} />
+          <Row label="Total" value={<Price amount={receipt.priceArs} className="text-lg" />} />
         </dl>
       </section>
 

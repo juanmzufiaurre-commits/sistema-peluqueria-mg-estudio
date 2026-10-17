@@ -66,7 +66,7 @@ export function StepDateTime({ availability, onSelect, onRetry }: Props) {
               )}
             >
               <span className="label-wide !tracking-[0.2em]">{p.weekday}</span>
-              <span className="font-display text-2xl leading-none">{p.day}</span>
+              <span className="text-2xl font-light leading-none tabular-nums">{p.day}</span>
               <span className="text-xs uppercase text-current/70">{p.month}</span>
             </button>
           );

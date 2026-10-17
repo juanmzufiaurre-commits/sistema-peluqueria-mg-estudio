@@ -9,7 +9,7 @@ export default async function CatalogPage() {
   return (
     <section className="section-enter mx-auto w-full max-w-5xl px-4 pb-24 pt-12">
       <div className="mb-10 text-center">
-        <h2 className="font-display text-4xl font-semibold">Catálogo de cortes</h2>
+        <h2 className="text-4xl font-medium tracking-tight">Catálogo de cortes</h2>
         <p className="mx-auto mt-3 max-w-md text-ink-soft">Trabajos reales del estudio. Inspirate y, al reservar, subí la foto del que más te guste.</p>
       </div>
       <CatalogGallery photos={photos} />

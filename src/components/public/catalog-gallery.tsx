@@ -94,7 +94,7 @@ export function CatalogGallery({ photos }: { photos: PublicCatalogPhoto[] }) {
               )}
             </div>
             <div className="text-center">
-              {current.caption && <p className="font-display text-xl">{current.caption}</p>}
+              {current.caption && <p className="text-xl font-medium">{current.caption}</p>}
               {current.staffName && <p className="text-sm text-ink-soft">por {current.staffName}</p>}
             </div>
             <Link href="/" onClick={() => setIndex(null)} className={buttonVariants({ size: "sm" })}>

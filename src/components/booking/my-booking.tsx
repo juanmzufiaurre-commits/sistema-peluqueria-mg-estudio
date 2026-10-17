@@ -81,7 +81,7 @@ export function MyBooking({ token, info, booking }: Props) {
   if (mode === "cancelled") {
     return (
       <div className="flex flex-col items-center gap-4 text-center">
-        <h1 className="font-display text-3xl font-semibold">Turno cancelado</h1>
+        <h1 className="text-[1.85rem] font-medium leading-tight tracking-tight">Turno cancelado</h1>
         <p className="text-ink-soft">Liberamos tu horario. ¡Gracias por avisar!</p>
         <Link href="/#reservar" className="mt-2 inline-flex h-12 items-center rounded-sm bg-ink px-6 text-sm uppercase tracking-[0.12em] text-cream">
           Reservar otro turno
@@ -103,7 +103,7 @@ export function MyBooking({ token, info, booking }: Props) {
 
         {mode === "pick" && availability && (
           <>
-            <h1 className="mb-6 font-display text-3xl font-semibold">Elegí el nuevo horario</h1>
+            <h1 className="mb-6 text-[1.85rem] font-medium leading-tight tracking-tight">Elegí el nuevo horario</h1>
             <Suspense fallback={<StepDateTimeSkeleton />}>
               <StepDateTime
                 availability={availability}
@@ -119,12 +119,12 @@ export function MyBooking({ token, info, booking }: Props) {
 
         {mode === "confirm" && newSlot && (
           <div className="flex flex-col gap-6">
-            <h1 className="font-display text-3xl font-semibold">Confirmá el cambio</h1>
+            <h1 className="text-[1.85rem] font-medium leading-tight tracking-tight">Confirmá el cambio</h1>
             <div className="rounded-sm border border-line bg-surface p-5 text-sm">
               <p className="text-muted line-through">
                 {formatLongDate(startsAt)} · {formatTime(startsAt)} hs
               </p>
-              <p className="mt-2 font-display text-xl">
+              <p className="mt-2 text-xl font-medium">
                 {formatLongDate(newSlot)} · {formatTime(newSlot)} hs
               </p>
             </div>
@@ -145,7 +145,7 @@ export function MyBooking({ token, info, booking }: Props) {
   return (
     <div className="flex flex-col gap-8">
       <div className="text-center">
-        <h1 className="font-display text-3xl font-semibold">Hola, {booking.firstName}</h1>
+        <h1 className="text-[1.85rem] font-medium leading-tight tracking-tight">Hola, {booking.firstName}</h1>
         <p className="mt-2 text-ink-soft">Este es tu turno en {info.businessName}.</p>
       </div>
 
@@ -158,8 +158,8 @@ export function MyBooking({ token, info, booking }: Props) {
       <section className="rounded-sm border border-ink bg-surface">
         <div className="border-b border-dashed border-ink/40 p-5 text-center">
           <p className="label-wide text-muted">{active ? "Tu turno" : STATUS_LABEL[status]}</p>
-          <p className="mt-2 font-display text-2xl">{formatLongDate(startsAt)}</p>
-          <p className="font-display text-4xl">{formatTime(startsAt)} hs</p>
+          <p className="mt-2 text-2xl font-medium tracking-tight">{formatLongDate(startsAt)}</p>
+          <p className="text-4xl font-light tabular-nums tracking-tight">{formatTime(startsAt)} hs</p>
         </div>
         <dl className="flex flex-col gap-3 p-5 text-sm">
           <Row label="Servicio" value={booking.serviceName} />

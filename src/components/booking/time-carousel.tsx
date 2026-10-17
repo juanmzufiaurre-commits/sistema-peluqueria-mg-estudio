@@ -15,9 +15,9 @@ interface Props {
 
 // Cuánto se atenúa cada posición respecto del centro. Más allá de 2 queda fuera de la vista.
 const LOOK: Record<number, string> = {
-  0: "scale-125 font-display text-3xl font-semibold opacity-100 blur-0",
-  1: "text-xl opacity-60 blur-[0.6px]",
-  2: "text-lg opacity-35 blur-[1.2px]",
+  0: "scale-125 text-3xl font-light tracking-tight opacity-100 blur-0",
+  1: "text-xl font-light opacity-60 blur-[0.6px]",
+  2: "text-lg font-light opacity-35 blur-[1.2px]",
 };
 
 /**
@@ -120,7 +120,7 @@ export function TimeCarousel({ slots, onSelect }: Props) {
                     aria-label={formatTime(iso)}
                     // Altura fija: el tamaño de letra cambia al animar y no debe mover lo que está debajo.
                     className={cn(
-                      "flex h-12 w-full origin-center items-center justify-center leading-none transition-all duration-200",
+                      "flex h-12 w-full origin-center items-center justify-center leading-none tabular-nums transition-all duration-200",
                       LOOK[d] ?? "pointer-events-none opacity-0",
                     )}
                   >

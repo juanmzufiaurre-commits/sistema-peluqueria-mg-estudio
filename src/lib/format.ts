@@ -27,3 +27,7 @@ export function dayParts(dateStr: string): { weekday: string; day: string; month
   const get = (type: string) => (parts.find((p) => p.type === type)?.value ?? "").replace(".", "");
   return { weekday: get("weekday"), day: get("day"), month: get("month") };
 }
+
+const arsAmount = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 });
+/** Solo el número, sin el símbolo: "16.000". Para dibujar el "$" aparte (ver <Price>). */
+export const formatArsAmount = (amount: number): string => arsAmount.format(amount);

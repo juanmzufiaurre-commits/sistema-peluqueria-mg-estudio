@@ -7,8 +7,9 @@ import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { createBookingAction, type BookingReceipt } from "@/actions/bookings";
 import { Button } from "@/components/ui/button";
+import { Price } from "@/components/ui/price";
 import { Field, Input } from "@/components/ui/field";
-import { formatArs, formatDuration, formatLongDate, formatTime } from "@/lib/format";
+import { formatDuration, formatLongDate, formatTime } from "@/lib/format";
 import { createBookingSchema } from "@/lib/validation/booking";
 import type { PublicService } from "@/server/services/catalog";
 import { PhotoDropzone, type PhotoItem } from "./photo-dropzone";
@@ -56,14 +57,14 @@ export function StepContact({ service, startsAt, onBooked, onPickAnotherSlot }: 
 
   return (
     <form onSubmit={handleSubmit(submit)} noValidate className="flex flex-col gap-8">
-      <section aria-label="Resumen" className="rounded-sm border border-line bg-surface p-5">
-        <p className="font-display text-xl font-semibold">{service.name}</p>
+      <section aria-label="Resumen" className="rounded-2xl border border-ink/10 bg-gradient-to-b from-ink/[0.06] to-ink/[0.015] p-5 shadow-[inset_0_1px_0_rgb(243_234_224/0.06)]">
+        <p className="text-xl font-medium tracking-tight">{service.name}</p>
         <p className="mt-1 text-sm text-ink-soft">
           {formatLongDate(startsAt)} · {formatTime(startsAt)} hs
         </p>
-        <p className="mt-3 flex justify-between text-sm">
+        <p className="mt-4 flex items-center justify-between border-t border-ink/10 pt-4 text-sm text-ink-soft">
           <span>{formatDuration(service.durationMinutes)}</span>
-          <span className="font-display text-lg">{formatArs(service.priceArs)}</span>
+          <Price amount={service.priceArs} className="text-xl text-ink" />
         </p>
       </section>
 

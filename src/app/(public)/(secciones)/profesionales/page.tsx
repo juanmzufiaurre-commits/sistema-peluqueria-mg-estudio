@@ -11,7 +11,7 @@ export default async function ProfessionalsPage() {
   return (
     <section className="section-enter mx-auto w-full max-w-5xl px-4 pb-24 pt-12">
       <div className="mb-10 text-center">
-        <h2 className="font-display text-4xl font-semibold">Nuestro equipo</h2>
+        <h2 className="text-4xl font-medium tracking-tight">Nuestro equipo</h2>
         <p className="mt-3 text-ink-soft">Conocé a quienes van a cuidar tu estilo.</p>
       </div>
 

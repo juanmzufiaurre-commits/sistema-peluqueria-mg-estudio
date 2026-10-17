@@ -88,7 +88,7 @@ export function BookingWizard({ services, info }: { services: PublicService[]; i
               <ArrowLeft className="size-5" strokeWidth={1.5} />
             </button>
           )}
-          <h2 className="font-display text-3xl font-semibold">{TITLES[step]}</h2>
+          <h2 className="text-[1.85rem] font-medium leading-tight tracking-tight">{TITLES[step]}</h2>
         </div>
       )}
 

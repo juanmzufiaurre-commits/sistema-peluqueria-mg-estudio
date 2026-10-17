@@ -43,7 +43,7 @@ export function Dialog({ open, onClose, title, variant = "modal", children }: Pr
         <>
           {variant !== "plain" && (
             <div className="flex items-center justify-between border-b border-line px-6 py-4">
-              <h2 className="font-display text-2xl font-semibold">{title}</h2>
+              <h2 className="text-2xl font-medium tracking-tight">{title}</h2>
               <button type="button" onClick={onClose} aria-label="Cerrar" className="flex size-10 items-center justify-center">
                 <X className="size-5" />
               </button>

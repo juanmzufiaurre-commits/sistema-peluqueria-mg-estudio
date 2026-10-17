@@ -31,7 +31,7 @@ export function StaffCard({ staff }: { staff: PublicStaff }) {
           </div>
         )}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-5 pb-5 pt-20">
-          <h3 className="font-display text-2xl font-semibold leading-tight text-ink">{staff.name}</h3>
+          <h3 className="text-2xl font-medium leading-tight tracking-tight text-ink">{staff.name}</h3>
           {staff.role && <p className="label-wide mt-2 text-ink-soft">{staff.role}</p>}
         </div>
       </div>
