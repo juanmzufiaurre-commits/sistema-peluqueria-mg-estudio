@@ -3,9 +3,10 @@
 import { use, useState } from "react";
 import type { ActionResult } from "@/lib/action-result";
 import type { AvailableDay } from "@/actions/availability";
-import { dayParts, formatTime } from "@/lib/format";
+import { dayParts } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { TimeCarousel } from "./time-carousel";
 
 interface Props {
   availability: Promise<ActionResult<AvailableDay[]>>;
@@ -74,19 +75,8 @@ export function StepDateTime({ availability, onSelect, onRetry }: Props) {
 
       <div>
         <p className="label-wide mb-4 text-ink-soft">Horarios disponibles</p>
-        <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-          {slots.map((iso) => (
-            <li key={iso}>
-              <button
-                type="button"
-                onClick={() => onSelect(iso)}
-                className="h-12 w-full rounded-sm border border-line bg-surface text-base transition-colors hover:border-ink hover:bg-ink hover:text-cream"
-              >
-                {formatTime(iso)}
-              </button>
-            </li>
-          ))}
-        </ul>
+        {/* key: al cambiar de día la rueda arranca de nuevo en el primer horario */}
+        <TimeCarousel key={selected} slots={slots} onSelect={onSelect} />
       </div>
     </div>
   );
@@ -100,9 +90,9 @@ export function StepDateTimeSkeleton() {
           <div key={i} className="h-24 w-16 shrink-0 rounded-sm bg-cream-deep" />
         ))}
       </div>
-      <div className="grid grid-cols-3 gap-2">
-        {Array.from({ length: 9 }, (_, i) => (
-          <div key={i} className="h-12 rounded-sm bg-cream-deep" />
+      <div className="flex items-center justify-center gap-4 py-4">
+        {[0.25, 0.55, 1, 0.55, 0.25].map((o, i) => (
+          <div key={i} className="h-8 w-14 rounded-sm bg-cream-deep" style={{ opacity: o }} />
         ))}
       </div>
     </div>
