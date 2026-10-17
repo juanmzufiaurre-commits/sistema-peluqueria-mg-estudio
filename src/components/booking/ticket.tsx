@@ -44,7 +44,7 @@ export function Ticket({ receipt, businessName, address, onNewBooking }: Props) 
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-3 text-center">
-        <span className="flex size-12 items-center justify-center rounded-full bg-ink text-cream">
+        <span className="flex size-12 items-center justify-center rounded-sm bg-ink text-cream">
           <Check aria-hidden className="size-6" />
         </span>
         <h2 className="text-[1.85rem] font-medium leading-tight tracking-tight">¡Turno confirmado!</h2>

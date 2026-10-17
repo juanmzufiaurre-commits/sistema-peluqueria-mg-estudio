@@ -87,7 +87,7 @@ export function TimeCarousel({ slots, onSelect }: Props) {
           onClick={() => goTo(index - 1)}
           disabled={index === 0}
           aria-label="Horario anterior"
-          className="hidden size-10 shrink-0 items-center justify-center rounded-full border border-line transition-colors hover:border-ink disabled:opacity-30 sm:flex"
+          className="hidden size-10 shrink-0 items-center justify-center rounded-sm border border-line transition-colors hover:border-ink disabled:opacity-30 sm:flex"
         >
           <ChevronLeft className="size-5" />
         </button>
@@ -137,7 +137,7 @@ export function TimeCarousel({ slots, onSelect }: Props) {
           onClick={() => goTo(index + 1)}
           disabled={index === slots.length - 1}
           aria-label="Horario siguiente"
-          className="hidden size-10 shrink-0 items-center justify-center rounded-full border border-line transition-colors hover:border-ink disabled:opacity-30 sm:flex"
+          className="hidden size-10 shrink-0 items-center justify-center rounded-sm border border-line transition-colors hover:border-ink disabled:opacity-30 sm:flex"
         >
           <ChevronRight className="size-5" />
         </button>

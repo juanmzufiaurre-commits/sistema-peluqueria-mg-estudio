@@ -104,3 +104,14 @@ body {
 .card-glow:focus-visible::before {
   opacity: 1;
 }
+
+/* Video de la portada: entra suave cuando ya puede reproducirse */
+.hero-video {
+  animation: hero-video-in 1.2s ease-out both;
+}
+
+@keyframes hero-video-in {
+  from {
+    opacity: 0;
+  }
+}

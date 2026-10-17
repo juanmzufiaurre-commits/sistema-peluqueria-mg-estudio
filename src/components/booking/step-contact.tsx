@@ -57,7 +57,7 @@ export function StepContact({ service, startsAt, onBooked, onPickAnotherSlot }: 
 
   return (
     <form onSubmit={handleSubmit(submit)} noValidate className="flex flex-col gap-8">
-      <section aria-label="Resumen" className="rounded-2xl border border-ink/10 bg-gradient-to-b from-ink/[0.06] to-ink/[0.015] p-5 shadow-[inset_0_1px_0_rgb(243_234_224/0.06)]">
+      <section aria-label="Resumen" className="rounded-sm border border-ink/10 bg-gradient-to-b from-ink/[0.06] to-ink/[0.015] p-5 shadow-[inset_0_1px_0_rgb(243_234_224/0.06)]">
         <p className="text-xl font-medium tracking-tight">{service.name}</p>
         <p className="mt-1 text-sm text-ink-soft">
           {formatLongDate(startsAt)} · {formatTime(startsAt)} hs

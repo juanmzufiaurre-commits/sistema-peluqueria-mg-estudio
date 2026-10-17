@@ -17,7 +17,7 @@ export function CatalogGallery({ photos }: { photos: PublicCatalogPhoto[] }) {
   if (photos.length === 0) {
     return (
       <div className="flex flex-col items-center gap-5 rounded-sm border border-dashed border-line px-6 py-16 text-center">
-        <span className="flex size-14 items-center justify-center rounded-full border border-line">
+        <span className="flex size-14 items-center justify-center rounded-sm border border-line">
           <Scissors aria-hidden strokeWidth={1.4} className="size-6 text-ink-soft" />
         </span>
         <p className="max-w-xs text-ink-soft">Muy pronto vas a ver acá los trabajos del estudio.</p>
@@ -44,7 +44,7 @@ export function CatalogGallery({ photos }: { photos: PublicCatalogPhoto[] }) {
               aria-pressed={staffId === id}
               onClick={() => setStaffId(id)}
               className={cn(
-                "shrink-0 rounded-full border px-4 py-2 text-xs uppercase tracking-[0.15em] transition-colors",
+                "shrink-0 rounded-sm border px-4 py-2 text-xs uppercase tracking-[0.15em] transition-colors",
                 staffId === id ? "border-ink bg-ink text-cream" : "border-line text-ink-soft hover:border-ink-soft",
               )}
             >
@@ -81,14 +81,14 @@ export function CatalogGallery({ photos }: { photos: PublicCatalogPhoto[] }) {
           <div className="flex flex-col items-center gap-4">
             <div className="flex items-center gap-2">
               {visible.length > 1 && (
-                <button type="button" onClick={() => step(-1)} aria-label="Anterior" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-cream">
+                <button type="button" onClick={() => step(-1)} aria-label="Anterior" className="flex size-10 shrink-0 items-center justify-center rounded-sm bg-cream">
                   <ChevronLeft />
                 </button>
               )}
               {/* eslint-disable-next-line @next/next/no-img-element -- imagen remota de Cloudinary */}
               <img src={cloudinaryFull(current.url)} alt={current.caption ?? "Corte ampliado"} className="max-h-[74dvh] max-w-full rounded-sm object-contain" />
               {visible.length > 1 && (
-                <button type="button" onClick={() => step(1)} aria-label="Siguiente" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-cream">
+                <button type="button" onClick={() => step(1)} aria-label="Siguiente" className="flex size-10 shrink-0 items-center justify-center rounded-sm bg-cream">
                   <ChevronRight />
                 </button>
               )}

@@ -108,7 +108,7 @@ export function PhotoDropzone({ photos, onChange }: Props) {
                 type="button"
                 onClick={() => remove(p.id)}
                 aria-label="Quitar foto"
-                className="absolute right-1 top-1 flex size-7 items-center justify-center rounded-full bg-ink text-cream"
+                className="absolute right-1 top-1 flex size-7 items-center justify-center rounded-sm bg-ink text-cream"
               >
                 <X className="size-4" />
               </button>

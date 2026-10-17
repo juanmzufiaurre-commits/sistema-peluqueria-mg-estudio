@@ -7,7 +7,6 @@ import { getAvailabilityAction, type AvailableDay } from "@/actions/availability
 import type { BookingReceipt } from "@/actions/bookings";
 import type { ActionResult } from "@/lib/action-result";
 import { formatArs, formatDuration } from "@/lib/format";
-import { cn } from "@/lib/utils";
 import type { PublicInfo, PublicService } from "@/server/services/catalog";
 import { StepContact } from "./step-contact";
 import { StepDateTime, StepDateTimeSkeleton } from "./step-datetime";
@@ -67,27 +66,24 @@ export function BookingWizard({ services, info }: { services: PublicService[]; i
   return (
     <div ref={topRef} className="scroll-mt-6">
       {step !== "done" && (
-        <nav aria-label="Progreso" className="mb-8">
-          <ol className="flex gap-2">
-            {STEPS.map((s, i) => (
-              <li key={s.key} className="flex-1" aria-current={i === stepIndex ? "step" : undefined}>
-                <div className={cn("h-px", i <= stepIndex ? "bg-ink" : "bg-line")} />
-                <p className={cn("label-wide mt-2 !text-[0.6rem]", i <= stepIndex ? "text-ink" : "text-muted")}>
-                  {String(i + 1).padStart(2, "0")} {s.label}
-                </p>
-              </li>
-            ))}
-          </ol>
-        </nav>
-      )}
-
-      {step !== "done" && (
-        <div className="mb-6 flex items-center gap-3">
-          {back && (
-            <button type="button" onClick={() => go(back)} aria-label="Volver" className="-ml-2 flex size-10 items-center justify-center">
-              <ArrowLeft className="size-5" strokeWidth={1.5} />
-            </button>
-          )}
+        <div className="mb-6">
+          {/* "Volver" a la izquierda y en qué paso estás a la derecha: se entiende sin barra de progreso. */}
+          <div className="mb-3 flex min-h-9 items-center justify-between gap-4">
+            {back ? (
+              <button
+                type="button"
+                onClick={() => go(back)}
+                className="-ml-1 inline-flex items-center gap-2 px-1 py-2 text-xs uppercase tracking-[0.2em] text-ink-soft transition-colors hover:text-ink"
+              >
+                <ArrowLeft aria-hidden className="size-4" strokeWidth={1.5} /> Volver
+              </button>
+            ) : (
+              <span />
+            )}
+            <p className="text-xs uppercase tracking-[0.2em] text-muted">
+              Paso <span className="text-ink">{stepIndex + 1}</span> de {STEPS.length}
+            </p>
+          </div>
           <h2 className="text-[1.85rem] font-medium leading-tight tracking-tight">{TITLES[step]}</h2>
         </div>
       )}
