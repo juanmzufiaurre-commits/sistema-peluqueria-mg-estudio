@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate deploy",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "db:local": "node scripts/local-db.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -37,6 +38,8 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
+    "@electric-sql/pglite-socket": "^0.2.13",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^24.19.2",
     "@types/pg": "^8.23.1",

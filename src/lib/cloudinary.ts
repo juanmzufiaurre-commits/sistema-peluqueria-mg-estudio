@@ -1,10 +1,12 @@
 import { v2 as cloudinary } from "cloudinary";
 
-export type UploadKind = "reference" | "result";
+export type UploadKind = "reference" | "result" | "staff" | "catalog";
 
 export const FOLDERS: Record<UploadKind, string> = {
   reference: "mg-estudio/reference", // fotos que sube el cliente al reservar
   result: "mg-estudio/results", // fotos del resultado que sube el local
+  staff: "mg-estudio/staff", // fotos de perfil de los profesionales
+  catalog: "mg-estudio/catalog", // catálogo público de cortes
 };
 export const ALLOWED_FORMATS = "jpg,png,webp";
 

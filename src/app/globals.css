@@ -69,3 +69,21 @@ body {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
+
+/* Entrada suave del contenido al cambiar de apartado (Profesionales · Agendar turno · Catálogo) */
+@keyframes section-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.section-enter {
+  animation: section-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-enter {
+    animation: none;
+  }
+}

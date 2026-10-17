@@ -6,3 +6,13 @@ export function cloudinaryThumb(secureUrl: string, size: number): string {
 export function cloudinaryFull(secureUrl: string): string {
   return secureUrl.replace("/upload/", "/upload/c_limit,w_1600,f_auto,q_auto/");
 }
+
+/** Recorte vertical (retratos), centrado en la cara cuando Cloudinary la detecta. */
+export function cloudinaryPortrait(secureUrl: string, width: number): string {
+  return secureUrl.replace("/upload/", `/upload/c_fill,g_auto,w_${width},h_${Math.round((width * 4) / 3)},f_auto,q_auto/`);
+}
+
+/** Ancho máximo conservando la proporción original (grillas tipo mosaico). */
+export function cloudinaryWidth(secureUrl: string, width: number): string {
+  return secureUrl.replace("/upload/", `/upload/c_limit,w_${width},f_auto,q_auto/`);
+}

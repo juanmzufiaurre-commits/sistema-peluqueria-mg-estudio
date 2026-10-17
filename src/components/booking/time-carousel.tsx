@@ -118,7 +118,11 @@ export function TimeCarousel({ slots, onSelect }: Props) {
                     tabIndex={-1}
                     onClick={() => (d === 0 ? onSelect(iso) : goTo(i))}
                     aria-label={formatTime(iso)}
-                    className={cn("w-full origin-center py-2 text-center transition-all duration-200", LOOK[d] ?? "pointer-events-none opacity-0")}
+                    // Altura fija: el tamaño de letra cambia al animar y no debe mover lo que está debajo.
+                    className={cn(
+                      "flex h-12 w-full origin-center items-center justify-center leading-none transition-all duration-200",
+                      LOOK[d] ?? "pointer-events-none opacity-0",
+                    )}
                   >
                     {formatTime(iso)}
                   </button>

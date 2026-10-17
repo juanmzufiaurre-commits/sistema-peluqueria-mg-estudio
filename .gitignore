@@ -53,3 +53,6 @@ tsconfig.tsbuildinfo
 *.7z
 *.tar
 *.tar.gz
+
+# base de datos local de desarrollo (PGlite)
+/.local-db

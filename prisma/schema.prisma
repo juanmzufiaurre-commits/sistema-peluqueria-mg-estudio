@@ -66,8 +66,15 @@ model Staff {
   authUserId     String?         @unique // uuid de Supabase Auth, si tiene login
   isActive       Boolean         @default(true)
   sortOrder      Int             @default(0)
+  // Perfil público (apartado "Profesionales").
+  role           String? // ej. "Colorista"
+  instagram      String? // usuario sin @
+  photoUrl       String?
+  photoPublicId  String?         @unique
+  certificate    String? // ej. "Certificado en colorimetría — Academia X"
   createdAt      DateTime        @default(now()) @db.Timestamptz
   bookings       Booking[]
+  catalogPhotos  CatalogPhoto[]
   workingHours   WorkingHour[]
   blockedPeriods BlockedPeriod[]
 }
@@ -120,6 +127,19 @@ model BookingPhoto {
   secureUrl String
   publicId  String    @unique
   createdAt DateTime  @default(now()) @db.Timestamptz
+}
+
+// Catálogo de cortes: fotos de trabajos del local que se muestran al público como referencia.
+model CatalogPhoto {
+  id        String   @id @default(cuid())
+  secureUrl String
+  publicId  String   @unique
+  caption   String?
+  staffId   String? // quién lo hizo
+  staff     Staff?   @relation(fields: [staffId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  @@index([createdAt])
 }
 
 model ClientNote {

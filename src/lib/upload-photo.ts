@@ -67,3 +67,5 @@ export async function uploadPhoto(file: File, signEndpoint: string): Promise<Upl
 
 export const uploadReferencePhoto = (file: File): Promise<UploadedPhoto> => uploadPhoto(file, "/api/uploads/sign");
 export const uploadResultPhoto = (file: File): Promise<UploadedPhoto> => uploadPhoto(file, "/api/admin/uploads/sign");
+export const uploadStaffPhoto = (file: File): Promise<UploadedPhoto> => uploadPhoto(file, "/api/admin/uploads/sign?kind=staff");
+export const uploadCatalogPhoto = (file: File): Promise<UploadedPhoto> => uploadPhoto(file, "/api/admin/uploads/sign?kind=catalog");
