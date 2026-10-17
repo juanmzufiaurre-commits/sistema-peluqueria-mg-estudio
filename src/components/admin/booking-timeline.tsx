@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { addClientNoteAction, cancelBookingByAdminAction, setBookingStatusAction } from "@/actions/admin-bookings";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
+import { Select } from "@/components/ui/field";
 import { ACTIVE, BOOKING_STATUSES, STATUS_CLASS, STATUS_LABEL, isCancelled, type BookingStatusValue } from "@/lib/booking-status";
 import { formatArs, formatDuration, formatLongDate, formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -260,19 +261,19 @@ function Actions({ b, ctx }: { b: AgendaBooking; ctx: WaContext }) {
             <label htmlFor={`status-${b.id}`} className="text-sm text-muted">
               Estado
             </label>
-            <select
+            <Select
               id={`status-${b.id}`}
               value={b.status}
               disabled={pending}
               onChange={(e) => changeStatus(e.target.value as BookingStatusValue)}
-              className="h-10 rounded-sm border border-line bg-surface px-3 text-sm"
+              className="h-10 w-auto px-3 text-sm"
             >
               {OPERATIVE.map((s) => (
                 <option key={s} value={s}>
                   {STATUS_LABEL[s]}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         )}
 

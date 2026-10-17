@@ -13,6 +13,22 @@ export function Input({ className, ...props }: ComponentProps<"input">) {
   );
 }
 
+/**
+ * Selector nativo. Las opciones llevan color sólido: el menú desplegable lo dibuja el navegador y,
+ * si hereda el fondo traslúcido del selector, queda texto claro sobre fondo claro (ilegible).
+ */
+export function Select({ className, ...props }: ComponentProps<"select">) {
+  return (
+    <select
+      className={cn(
+        "h-12 w-full rounded-sm border border-line bg-surface px-4 text-base text-ink focus-visible:border-ink [&>option]:bg-cream [&>option]:text-ink",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
 export function Field({
   label,
   htmlFor,

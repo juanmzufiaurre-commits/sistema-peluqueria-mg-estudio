@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { saveSettingsAction } from "@/actions/config";
 import { Button } from "@/components/ui/button";
-import { Field, Input } from "@/components/ui/field";
+import { Field, Input, Select } from "@/components/ui/field";
 
 export interface SettingsValues {
   businessName: string;
@@ -49,13 +49,13 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
           <Input id="bufferMinutes" name="bufferMinutes" type="number" min={0} max={120} defaultValue={initial.bufferMinutes} required />
         </Field>
         <Field label="Grilla de horarios" htmlFor="slotStepMinutes" hint="Cada cuántos minutos se ofrece un horario">
-          <select id="slotStepMinutes" name="slotStepMinutes" defaultValue={initial.slotStepMinutes} className="h-12 w-full rounded-sm border border-line bg-surface px-4">
+          <Select id="slotStepMinutes" name="slotStepMinutes" defaultValue={initial.slotStepMinutes}>
             {STEPS.map((s) => (
               <option key={s} value={s}>
                 Cada {s} min
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
         <Field label="Días reservables" htmlFor="bookingWindowDays" hint="Incluye el día de hoy">
           <Input id="bookingWindowDays" name="bookingWindowDays" type="number" min={1} max={60} defaultValue={initial.bookingWindowDays} required />
