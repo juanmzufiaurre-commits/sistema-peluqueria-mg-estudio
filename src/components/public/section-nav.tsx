@@ -1,23 +1,24 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { CalendarDays, Images, Users, type LucideIcon } from "lucide-react";
+import { CalendarDays, Images, MapPin, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const SECTIONS: { href: "/" | "/profesionales" | "/catalogo"; label: string; icon: LucideIcon }[] = [
+const SECTIONS: { href: "/" | "/profesionales" | "/catalogo" | "/ubicacion"; label: string; icon: LucideIcon }[] = [
   { href: "/profesionales", label: "Profesionales", icon: Users },
   { href: "/", label: "Agendar turno", icon: CalendarDays },
   { href: "/catalogo", label: "Catálogo", icon: Images },
+  { href: "/ubicacion", label: "Ubicación", icon: MapPin },
 ];
 
-// Entrada después de la intro: primero "Agendar turno" (centro) y enseguida los costados.
-const REVEAL_DELAY = [0.16, 0, 0.16];
-const REVEAL_FROM_X = [-14, 0, 14];
+// Entrada después de la intro: primero "Agendar turno" y enseguida el resto, alejándose de él.
+const REVEAL_DELAY = [0.14, 0, 0.14, 0.24];
+const REVEAL_FROM_X = [-14, 0, 14, 18];
 
 /**
- * Menú de los tres apartados públicos. El activo se ve en crema y un poco más grande; un aro
+ * Menú de los cuatro apartados públicos. El activo se ve en crema y un poco más grande; un aro
  * se desliza hasta su ícono para que se entienda en qué apartado estás.
  * `revealed` en false lo deja oculto (desenfocado) hasta que termina la intro de la portada.
  */
@@ -27,7 +28,7 @@ export function SectionNav({ revealed = true, instant = false }: { revealed?: bo
 
   return (
     <nav aria-label="Apartados" className="w-full max-w-xl pb-6 pt-8" inert={!revealed}>
-      <ul className="grid grid-cols-3 items-end">
+      <ul className="grid grid-cols-4 items-start">
         {SECTIONS.map(({ href, label, icon: Icon }, i) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
@@ -61,11 +62,12 @@ export function SectionNav({ revealed = true, instant = false }: { revealed?: bo
                 </span>
                 <span
                   className={cn(
-                    "whitespace-nowrap uppercase transition-all duration-300",
-                    // En celular cada columna mide ~115px: el tracking se abre recién en pantallas más anchas.
+                    "text-center uppercase leading-snug transition-all duration-300 sm:whitespace-nowrap",
+                    // En celular cada columna mide ~85px: "Agendar turno" baja a dos renglones y el
+                    // tracking se abre recién en pantallas más anchas.
                     active
-                      ? "text-[0.72rem] font-medium tracking-[0.12em] text-ink sm:text-[0.8rem] sm:tracking-[0.2em]"
-                      : "text-[0.6rem] tracking-[0.16em] text-muted group-hover:text-ink-soft sm:text-[0.66rem] sm:tracking-[0.2em]",
+                      ? "text-[0.66rem] font-medium tracking-[0.1em] text-ink sm:text-[0.78rem] sm:tracking-[0.18em]"
+                      : "text-[0.58rem] tracking-[0.1em] text-muted group-hover:text-ink-soft sm:text-[0.64rem] sm:tracking-[0.18em]",
                   )}
                 >
                   {label}

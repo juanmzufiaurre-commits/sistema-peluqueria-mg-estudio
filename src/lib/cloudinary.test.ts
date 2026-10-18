@@ -33,6 +33,19 @@ describe("isOwnAsset", () => {
   });
 });
 
+describe("isOwnAsset con videos", () => {
+  const video = { secureUrl: "https://res.cloudinary.com/mi-cuenta/video/upload/v1/mg-estudio/catalog/clip.mp4", publicId: "mg-estudio/catalog/clip" };
+
+  it("acepta un video propio solo si se valida como video", () => {
+    expect(isOwnAsset("mi-cuenta", "catalog", video, "video")).toBe(true);
+    expect(isOwnAsset("mi-cuenta", "catalog", video)).toBe(false);
+  });
+
+  it("no deja pasar una foto como si fuera video", () => {
+    expect(isOwnAsset("mi-cuenta", "catalog", { ...video, secureUrl: video.secureUrl.replace("/video/", "/image/") }, "video")).toBe(false);
+  });
+});
+
 describe("signUpload", () => {
   afterEach(() => {
     vi.unstubAllEnvs();

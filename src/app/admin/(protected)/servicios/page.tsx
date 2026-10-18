@@ -1,15 +1,16 @@
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { ServiceManager } from "@/components/admin/service-manager";
+import { PageHeader } from "@/components/admin/ui";
 import { db } from "@/lib/db";
 
 export const metadata = { title: "Servicios — MG Estudio" };
 
 export default function ServicesPage() {
   return (
-    <div className="mx-auto max-w-3xl">
-      <h1 className="mb-6 font-display text-3xl font-semibold">Servicios</h1>
-      <Suspense fallback={<div className="h-40 animate-pulse rounded-sm bg-cream-deep" />}>
+    <div>
+      <PageHeader eyebrow="Servicios" title="Lo que ofrecés" description="Precios, duración y qué incluye cada servicio. Es lo que ven los clientes al reservar." />
+      <Suspense fallback={<div className="h-48 animate-pulse rounded-sm bg-ink/[0.04]" />}>
         <List />
       </Suspense>
     </div>

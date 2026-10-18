@@ -1,6 +1,8 @@
 import "server-only";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { DEV_ADMIN_ID, devAdminEmail } from "./dev-admin";
 
 export interface AdminUser {
   id: string;
@@ -16,6 +18,12 @@ export function adminEmails(): string[] {
 
 /** Usuario autenticado Y presente en ADMIN_EMAILS, o null. Verifica el token contra Supabase Auth. */
 export async function getAdminUser(): Promise<AdminUser | null> {
+  const dev = devAdminEmail(); // solo en `next dev` con DEV_ADMIN_EMAIL (ver dev-admin.ts)
+  if (dev) {
+    await connection(); // como la sesión real (que lee cookies): el panel se arma en cada request
+    return { id: DEV_ADMIN_ID, email: dev };
+  }
+
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.getUser();
   const email = data.user?.email?.toLowerCase();

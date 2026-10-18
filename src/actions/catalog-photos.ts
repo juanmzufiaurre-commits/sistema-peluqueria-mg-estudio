@@ -16,24 +16,27 @@ function refresh() {
 }
 
 const addSchema = z.object({
+  mediaType: z.enum(["IMAGE", "VIDEO"]),
   secureUrl: z.url(),
   publicId: z.string().min(1).max(200),
   staffId: z.string().min(1).nullable(),
+  serviceId: z.string().min(1).nullable(),
   caption: catalogCaptionSchema,
 });
 
-/** Agrega al catálogo una foto ya subida a Cloudinary. */
+/** Agrega al catálogo una foto o un video ya subido a Cloudinary. */
 export async function addCatalogPhotoAction(raw: unknown): Promise<ActionResult> {
   if (!(await getAdminUser())) return fail(UNAUTHORIZED);
   const parsed = addSchema.safeParse(raw);
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Datos inválidos");
-  const { secureUrl, publicId, staffId, caption } = parsed.data;
-  if (!isOwnConfiguredAsset("catalog", { secureUrl, publicId })) return fail("La foto no es válida.");
+  const { mediaType, secureUrl, publicId, staffId, serviceId, caption } = parsed.data;
+  const resource = mediaType === "VIDEO" ? "video" : "image";
+  if (!isOwnConfiguredAsset("catalog", { secureUrl, publicId }, resource)) return fail("El archivo no es válido.");
 
   try {
-    await db.catalogPhoto.create({ data: { secureUrl, publicId, staffId, caption } });
+    await db.catalogPhoto.create({ data: { mediaType, secureUrl, publicId, staffId, serviceId, caption } });
   } catch {
-    return fail("Esa foto ya está cargada.");
+    return fail("Ese archivo ya está cargado.");
   }
   refresh();
   return ok();
@@ -42,6 +45,7 @@ export async function addCatalogPhotoAction(raw: unknown): Promise<ActionResult>
 const updateSchema = z.object({
   id: z.string().min(1),
   staffId: z.string().min(1).nullable(),
+  serviceId: z.string().min(1).nullable(),
   caption: catalogCaptionSchema,
 });
 
@@ -49,14 +53,14 @@ export async function updateCatalogPhotoAction(raw: unknown): Promise<ActionResu
   if (!(await getAdminUser())) return fail(UNAUTHORIZED);
   const parsed = updateSchema.safeParse(raw);
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Datos inválidos");
-  const { id, staffId, caption } = parsed.data;
+  const { id, staffId, serviceId, caption } = parsed.data;
 
-  await db.catalogPhoto.update({ where: { id }, data: { staffId, caption } });
+  await db.catalogPhoto.update({ where: { id }, data: { staffId, serviceId, caption } });
   refresh();
   return ok();
 }
 
-/** Elimina la foto del catálogo (fila y archivo en Cloudinary). */
+/** Elimina la foto o el video del catálogo (fila y archivo en Cloudinary). */
 export async function deleteCatalogPhotoAction(photoId: unknown): Promise<ActionResult> {
   if (!(await getAdminUser())) return fail(UNAUTHORIZED);
   const id = z.string().min(1).safeParse(photoId);
@@ -66,7 +70,7 @@ export async function deleteCatalogPhotoAction(photoId: unknown): Promise<Action
   if (!photo) return fail("La foto no existe.");
 
   await db.catalogPhoto.delete({ where: { id: photo.id } });
-  await destroyAsset(photo.publicId); // si falla, la foto ya no aparece igual
+  await destroyAsset(photo.publicId, photo.mediaType === "VIDEO" ? "video" : "image"); // si falla, ya no aparece igual
   refresh();
   return ok();
 }

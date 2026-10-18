@@ -1,8 +1,10 @@
+import { CalendarOff, Clock, Store, type LucideIcon } from "lucide-react";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { BlocksManager } from "@/components/admin/blocks-manager";
 import { HoursEditor } from "@/components/admin/hours-editor";
 import { SettingsForm } from "@/components/admin/settings-form";
+import { PageHeader, Panel, PanelTitle } from "@/components/admin/ui";
 import { db } from "@/lib/db";
 import { formatLongDate, formatTime } from "@/lib/format";
 import { loadConfig } from "@/server/services/booking";
@@ -11,11 +13,13 @@ export const metadata = { title: "Configuración — MG Estudio" };
 
 export default function ConfigPage() {
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-12">
-      <h1 className="font-display text-3xl font-semibold">Configuración</h1>
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-sm bg-cream-deep" />}>
-        <Sections />
-      </Suspense>
+    <div className="mx-auto max-w-4xl">
+      <PageHeader eyebrow="Configuración" title="Ajustes del estudio" description="Cuándo atendés, los días que cerrás y los datos del local." />
+      <div className="flex flex-col gap-6">
+        <Suspense fallback={<div className="h-96 animate-pulse rounded-sm bg-ink/[0.04]" />}>
+          <Sections />
+        </Suspense>
+      </div>
     </div>
   );
 }
@@ -47,13 +51,13 @@ async function Sections() {
 
   return (
     <>
-      <Block title="Horarios de atención">
+      <Block icon={Clock} title="Horarios de atención" description="Los clientes solo pueden reservar dentro de estos tramos.">
         <HoursEditor initial={hours.map((h) => ({ weekday: h.weekday, start: h.startTime, end: h.endTime }))} />
       </Block>
-      <Block title="Feriados y bloqueos">
+      <Block icon={CalendarOff} title="Feriados y bloqueos" description="Días u horas en que el estudio no atiende (vacaciones, trámites, feriados).">
         <BlocksManager blocks={blockRows} />
       </Block>
-      <Block title="Ajustes del local">
+      <Block icon={Store} title="Datos del local y reservas" description="Nombre, dirección, WhatsApp y las reglas para reservar o cancelar.">
         <SettingsForm
           initial={{
             businessName: info.businessName,
@@ -71,11 +75,11 @@ async function Sections() {
   );
 }
 
-function Block({ title, children }: { title: string; children: React.ReactNode }) {
+function Block({ icon, title, description, children }: { icon: LucideIcon; title: string; description: string; children: React.ReactNode }) {
   return (
-    <section>
-      <h2 className="label-wide mb-5 border-b border-line pb-3 text-ink-soft">{title}</h2>
+    <Panel>
+      <PanelTitle icon={icon} title={title} description={description} />
       {children}
-    </section>
+    </Panel>
   );
 }

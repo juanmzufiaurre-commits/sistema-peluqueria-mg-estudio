@@ -11,6 +11,7 @@ const UNAUTHORIZED = "No autorizado. Volvé a iniciar sesión.";
 
 function refresh() {
   updateTag("services"); // el wizard público lee la lista cacheada con este tag
+  updateTag("catalog"); // el catálogo muestra el nombre del servicio de cada trabajo
   revalidatePath("/admin/servicios");
 }
 

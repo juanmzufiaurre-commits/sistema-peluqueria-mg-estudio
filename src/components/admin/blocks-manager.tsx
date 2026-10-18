@@ -1,10 +1,11 @@
 "use client";
 
-import { Loader2, Trash2 } from "lucide-react";
+import { CalendarOff, Loader2, Trash2 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { createBlockAction, deleteBlockAction } from "@/actions/config";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
+import { FormMessage } from "./ui";
 
 export interface BlockRow {
   id: string;
@@ -40,7 +41,7 @@ export function BlocksManager({ blocks }: { blocks: BlockRow[] }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <form key={formKey} action={create} className="flex flex-col gap-4 rounded-sm border border-line bg-surface p-4">
+      <form key={formKey} action={create} className="flex flex-col gap-4 rounded-sm bg-ink/[0.03] p-4 sm:p-5">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Desde" htmlFor="startDate">
             <Input id="startDate" name="startDate" type="date" required />
@@ -63,23 +64,22 @@ export function BlocksManager({ blocks }: { blocks: BlockRow[] }) {
         </Button>
       </form>
 
-      {msg && (
-        <p role={msg.ok ? "status" : "alert"} className={msg.ok ? "text-st-confirmed" : "text-st-cancelled"}>
-          {msg.text}
-        </p>
-      )}
+      <FormMessage msg={msg} />
 
       {blocks.length === 0 ? (
-        <p className="text-sm text-muted">No hay bloqueos próximos.</p>
+        <p className="text-sm text-muted">No hay bloqueos próximos: el estudio atiende según los horarios de arriba.</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {blocks.map((b) => (
-            <li key={b.id} className="flex items-center justify-between gap-4 rounded-sm border border-line bg-surface p-3">
-              <span>
-                <span className="block">{b.label}</span>
-                {b.reason && <span className="block text-sm text-muted">{b.reason}</span>}
+            <li key={b.id} className="flex items-center justify-between gap-4 rounded-sm border border-ink/10 p-3 pl-4">
+              <span className="flex items-start gap-3">
+                <CalendarOff aria-hidden strokeWidth={1.5} className="mt-0.5 size-4 shrink-0 text-st-pending" />
+                <span>
+                  <span className="block">{b.label}</span>
+                  {b.reason && <span className="block text-sm text-muted">{b.reason}</span>}
+                </span>
               </span>
-              <button type="button" onClick={() => remove(b.id)} disabled={pending} aria-label={`Quitar bloqueo ${b.label}`} className="flex size-10 items-center justify-center hover:bg-cream-deep">
+              <button type="button" onClick={() => remove(b.id)} disabled={pending} aria-label={`Quitar bloqueo ${b.label}`} className="flex size-10 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-st-cancelled/10 hover:text-st-cancelled">
                 <Trash2 className="size-4" />
               </button>
             </li>

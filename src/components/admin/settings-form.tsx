@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { saveSettingsAction } from "@/actions/config";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
+import { FormMessage } from "./ui";
 
 export interface SettingsValues {
   businessName: string;
@@ -67,11 +68,7 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
           <Input id="minCancelHours" name="minCancelHours" type="number" min={0} max={72} defaultValue={initial.minCancelHours} required />
         </Field>
       </div>
-      {msg && (
-        <p role={msg.ok ? "status" : "alert"} className={msg.ok ? "text-st-confirmed" : "text-st-cancelled"}>
-          {msg.text}
-        </p>
-      )}
+      <FormMessage msg={msg} />
       <Button type="submit" className="self-start" disabled={pending}>
         {pending && <Loader2 aria-hidden className="size-4 animate-spin" />} Guardar ajustes
       </Button>

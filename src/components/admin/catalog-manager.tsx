@@ -1,31 +1,44 @@
 "use client";
 
-import { ImagePlus, Loader2, Pencil, Trash2 } from "lucide-react";
+import { Clapperboard, ImagePlus, Images, Loader2, Pencil, Play, Trash2 } from "lucide-react";
 import { useRef, useState, useTransition } from "react";
 import { addCatalogPhotoAction, deleteCatalogPhotoAction, updateCatalogPhotoAction } from "@/actions/catalog-photos";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Field, Input, Select } from "@/components/ui/field";
-import { cloudinaryThumb } from "@/lib/cloudinary-url";
-import { ACCEPTED_TYPES, uploadCatalogPhoto } from "@/lib/upload-photo";
+import { cloudinaryThumb, cloudinaryVideoPoster } from "@/lib/cloudinary-url";
+import { ACCEPTED_TYPES, ACCEPTED_VIDEO_TYPES, uploadCatalogPhoto, uploadCatalogVideo } from "@/lib/upload-photo";
+import { cn } from "@/lib/utils";
+import { EmptyState, FormMessage } from "./ui";
 
 export interface CatalogRow {
   id: string;
+  mediaType: "IMAGE" | "VIDEO";
   url: string;
   caption: string | null;
   staffId: string | null;
+  serviceId: string | null;
 }
+
+type Option = { id: string; name: string };
 
 interface Upload {
   id: string;
+  name: string;
+  video: boolean;
   status: "uploading" | "error";
   error?: string;
 }
 
-/** Fotos de cortes que se muestran en el apartado público "Catálogo". */
-export function CatalogManager({ photos, staff }: { photos: CatalogRow[]; staff: { id: string; name: string }[] }) {
+const thumbOf = (p: Pick<CatalogRow, "mediaType" | "url">, size: number) =>
+  p.mediaType === "VIDEO" ? cloudinaryVideoPoster(p.url, size, true) : cloudinaryThumb(p.url, size);
+
+/** Fotos y videos de cortes que se muestran en el apartado público "Catálogo". */
+export function CatalogManager({ photos, staff, services }: { photos: CatalogRow[]; staff: Option[]; services: Option[] }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [author, setAuthor] = useState<string>("");
+  const [service, setService] = useState<string>("");
+  const [dragging, setDragging] = useState(false);
   const [uploads, setUploads] = useState<Upload[]>([]);
   const [editing, setEditing] = useState<CatalogRow | null>(null);
   const [toDelete, setToDelete] = useState<CatalogRow | null>(null);
@@ -35,15 +48,17 @@ export function CatalogManager({ photos, staff }: { photos: CatalogRow[]; staff:
   function addFiles(files: FileList) {
     setError(null);
     const staffId = author || null;
+    const serviceId = service || null;
     for (const file of Array.from(files)) {
       const id = crypto.randomUUID();
-      setUploads((u) => [...u, { id, status: "uploading" }]);
+      const video = file.type.startsWith("video/");
+      setUploads((u) => [...u, { id, name: file.name, video, status: "uploading" }]);
 
-      uploadCatalogPhoto(file)
+      (video ? uploadCatalogVideo(file) : uploadCatalogPhoto(file))
         .then(async (uploaded) => {
-          const r = await addCatalogPhotoAction({ ...uploaded, staffId, caption: "" });
+          const r = await addCatalogPhotoAction({ ...uploaded, mediaType: video ? "VIDEO" : "IMAGE", staffId, serviceId, caption: "" });
           if (!r.success) throw new Error(r.error);
-          setUploads((u) => u.filter((x) => x.id !== id)); // la foto real llega con el refresco del servidor
+          setUploads((u) => u.filter((x) => x.id !== id)); // el archivo real llega con el refresco del servidor
         })
         .catch((e: unknown) =>
           setUploads((u) => u.map((x) => (x.id === id ? { ...x, status: "error", error: e instanceof Error ? e.message : "Error al subir" } : x))),
@@ -55,21 +70,58 @@ export function CatalogManager({ photos, staff }: { photos: CatalogRow[]; staff:
     if (!toDelete) return;
     startTransition(async () => {
       const r = await deleteCatalogPhotoAction(toDelete.id);
-      if (r.success) setToDelete(null);
-      else {
-        setToDelete(null);
-        setError(r.error);
-      }
+      setToDelete(null);
+      if (!r.success) setError(r.error);
     });
   }
 
-  const nameOf = (id: string | null) => staff.find((s) => s.id === id)?.name;
+  const nameOf = (list: Option[], id: string | null) => list.find((s) => s.id === id)?.name;
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 rounded-sm border border-line bg-surface p-4 sm:flex-row sm:items-end">
-        <div className="flex-1">
-          <Field label="¿Quién hizo el corte?" htmlFor="author" hint="Se aplica a las fotos que subas ahora">
+      <div className="surface-card grid gap-5 p-5 sm:grid-cols-[minmax(0,1fr)_16rem] sm:p-6">
+        {/* Zona de subida: se puede tocar o arrastrar fotos y videos encima */}
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragging(false);
+            if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+          }}
+          className={cn(
+            "flex min-h-44 flex-col items-center justify-center gap-3 rounded-sm border border-dashed p-6 text-center transition-colors",
+            dragging ? "border-ink bg-ink/[0.06]" : "border-ink/20 hover:border-ink/50 hover:bg-ink/[0.03]",
+          )}
+        >
+          <span className="flex items-center gap-2">
+            <span className="flex size-12 items-center justify-center rounded-full border border-ink/20">
+              <ImagePlus aria-hidden strokeWidth={1.4} className="size-5" />
+            </span>
+            <span className="flex size-12 items-center justify-center rounded-full border border-ink/20">
+              <Clapperboard aria-hidden strokeWidth={1.4} className="size-5" />
+            </span>
+          </span>
+          <span className="font-medium">Subir fotos o videos de cortes</span>
+          <span className="text-sm text-muted">Tocá para elegir o arrastralos acá · Fotos JPG, PNG o WebP · Videos MP4, MOV o WebM (máx. 100 MB)</span>
+        </button>
+        <div className="flex flex-col justify-center gap-4">
+          <Field label="¿Qué servicio se hizo?" htmlFor="service">
+            <Select id="service" value={service} onChange={(e) => setService(e.target.value)}>
+              <option value="">Sin especificar</option>
+              {services.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="¿Quién hizo el corte?" htmlFor="author" hint="Se aplica a lo que subas ahora">
             <Select id="author" value={author} onChange={(e) => setAuthor(e.target.value)}>
               <option value="">Sin especificar</option>
               {staff.map((s) => (
@@ -80,16 +132,13 @@ export function CatalogManager({ photos, staff }: { photos: CatalogRow[]; staff:
             </Select>
           </Field>
         </div>
-        <Button onClick={() => inputRef.current?.click()}>
-          <ImagePlus aria-hidden className="size-4" /> Subir fotos
-        </Button>
         <input
           ref={inputRef}
           type="file"
-          accept={ACCEPTED_TYPES.join(",")}
+          accept={[...ACCEPTED_TYPES, ...ACCEPTED_VIDEO_TYPES].join(",")}
           multiple
           className="sr-only"
-          aria-label="Subir fotos al catálogo"
+          aria-label="Subir fotos o videos al catálogo"
           onChange={(e) => {
             if (e.target.files) addFiles(e.target.files);
             e.target.value = "";
@@ -103,11 +152,11 @@ export function CatalogManager({ photos, staff }: { photos: CatalogRow[]; staff:
             <li key={u.id} className={u.status === "error" ? "text-st-cancelled" : "text-muted"}>
               {u.status === "uploading" ? (
                 <span className="inline-flex items-center gap-2">
-                  <Loader2 aria-hidden className="size-4 animate-spin" /> Subiendo foto…
+                  <Loader2 aria-hidden className="size-4 animate-spin" /> Subiendo {u.video ? "video" : "foto"} {u.name}…
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-3">
-                  {u.error}
+                  {u.name}: {u.error}
                   <button type="button" className="underline underline-offset-4" onClick={() => setUploads((all) => all.filter((x) => x.id !== u.id))}>
                     Descartar
                   </button>
@@ -118,44 +167,45 @@ export function CatalogManager({ photos, staff }: { photos: CatalogRow[]; staff:
         </ul>
       )}
 
-      {error && (
-        <p role="alert" className="text-sm text-st-cancelled">
-          {error}
-        </p>
-      )}
+      <FormMessage msg={error ? { ok: false, text: error } : null} />
 
       {photos.length === 0 ? (
-        <p className="text-sm text-muted">Todavía no hay fotos en el catálogo.</p>
+        <EmptyState icon={Images} title="Todavía no hay fotos ni videos" text="Lo que subas aparece en el apartado Catálogo de la página, para que los clientes se inspiren." />
       ) : (
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {photos.map((p) => (
             <li key={p.id} className="flex flex-col gap-2">
-              <div className="relative aspect-square overflow-hidden rounded-sm border border-line">
+              <div className="group relative aspect-square overflow-hidden rounded-sm border border-ink/10">
                 {/* eslint-disable-next-line @next/next/no-img-element -- miniatura ya optimizada por Cloudinary */}
-                <img src={cloudinaryThumb(p.url, 320)} alt={p.caption ?? "Corte del catálogo"} className="size-full object-cover" loading="lazy" />
-                <div className="absolute right-1 top-1 flex gap-1">
-                  <button type="button" onClick={() => setEditing(p)} aria-label="Editar foto" className="flex size-7 items-center justify-center rounded-full bg-cream text-ink">
+                <img src={thumbOf(p, 320)} alt={p.caption ?? "Corte del catálogo"} className="size-full object-cover" loading="lazy" />
+                {p.mediaType === "VIDEO" && (
+                  <span className="absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-[0.6rem] uppercase tracking-[0.12em] text-ink backdrop-blur">
+                    <Play aria-hidden className="size-3 fill-current" /> Video
+                  </span>
+                )}
+                <div className="absolute right-1.5 top-1.5 flex gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+                  <button type="button" onClick={() => setEditing(p)} aria-label="Editar" className="flex size-7 items-center justify-center rounded-full bg-cream text-ink">
                     <Pencil className="size-3.5" />
                   </button>
-                  <button type="button" onClick={() => setToDelete(p)} aria-label="Eliminar foto" className="flex size-7 items-center justify-center rounded-full bg-cream text-ink">
+                  <button type="button" onClick={() => setToDelete(p)} aria-label="Eliminar" className="flex size-7 items-center justify-center rounded-full bg-cream text-ink">
                     <Trash2 className="size-3.5" />
                   </button>
                 </div>
               </div>
-              <p className="truncate text-sm">{p.caption ?? <span className="text-muted">Sin descripción</span>}</p>
-              {nameOf(p.staffId) && <p className="-mt-2 truncate text-xs text-muted">por {nameOf(p.staffId)}</p>}
+              <p className="truncate text-sm">{nameOf(services, p.serviceId) ?? p.caption ?? <span className="text-muted">Sin servicio</span>}</p>
+              {nameOf(staff, p.staffId) && <p className="-mt-2 truncate text-xs text-muted">por {nameOf(staff, p.staffId)}</p>}
             </li>
           ))}
         </ul>
       )}
 
-      <Dialog open={editing !== null} onClose={() => setEditing(null)} title="Editar foto">
-        {editing && <PhotoForm key={editing.id} photo={editing} staff={staff} onDone={() => setEditing(null)} />}
+      <Dialog open={editing !== null} onClose={() => setEditing(null)} title={editing?.mediaType === "VIDEO" ? "Editar video" : "Editar foto"}>
+        {editing && <MediaForm key={editing.id} item={editing} staff={staff} services={services} onDone={() => setEditing(null)} />}
       </Dialog>
 
-      <Dialog open={toDelete !== null} onClose={() => setToDelete(null)} title="Eliminar foto">
+      <Dialog open={toDelete !== null} onClose={() => setToDelete(null)} title="Eliminar del catálogo">
         <div className="flex flex-col gap-5">
-          <p>Se va a eliminar esta foto del catálogo y del almacenamiento. No se puede deshacer.</p>
+          <p>Se va a eliminar {toDelete?.mediaType === "VIDEO" ? "este video" : "esta foto"} del catálogo y del almacenamiento. No se puede deshacer.</p>
           <div className="flex gap-3">
             <Button variant="ghost" className="flex-1" onClick={() => setToDelete(null)} disabled={pending}>
               Volver
@@ -170,13 +220,18 @@ export function CatalogManager({ photos, staff }: { photos: CatalogRow[]; staff:
   );
 }
 
-function PhotoForm({ photo, staff, onDone }: { photo: CatalogRow; staff: { id: string; name: string }[]; onDone: () => void }) {
+function MediaForm({ item, staff, services, onDone }: { item: CatalogRow; staff: Option[]; services: Option[]; onDone: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   function submit(formData: FormData) {
     setError(null);
-    const values = { id: photo.id, caption: formData.get("caption") ?? "", staffId: (formData.get("staffId") as string) || null };
+    const values = {
+      id: item.id,
+      caption: formData.get("caption") ?? "",
+      staffId: (formData.get("staffId") as string) || null,
+      serviceId: (formData.get("serviceId") as string) || null,
+    };
     startTransition(async () => {
       const r = await updateCatalogPhotoAction(values);
       if (r.success) onDone();
@@ -187,12 +242,19 @@ function PhotoForm({ photo, staff, onDone }: { photo: CatalogRow; staff: { id: s
   return (
     <form action={submit} className="flex flex-col gap-5">
       {/* eslint-disable-next-line @next/next/no-img-element -- miniatura ya optimizada por Cloudinary */}
-      <img src={cloudinaryThumb(photo.url, 480)} alt="" className="mx-auto aspect-square w-48 rounded-sm object-cover" />
-      <Field label="Descripción" htmlFor="caption" hint="Opcional. Ej.: Fade con mechas platinadas">
-        <Input id="caption" name="caption" defaultValue={photo.caption ?? ""} maxLength={80} />
+      <img src={thumbOf(item, 480)} alt="" className="mx-auto aspect-square w-48 rounded-sm object-cover" />
+      <Field label="¿Qué servicio se hizo?" htmlFor="serviceId">
+        <Select id="serviceId" name="serviceId" defaultValue={item.serviceId ?? ""}>
+          <option value="">Sin especificar</option>
+          {services.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}
+            </option>
+          ))}
+        </Select>
       </Field>
       <Field label="¿Quién hizo el corte?" htmlFor="staffId">
-        <Select id="staffId" name="staffId" defaultValue={photo.staffId ?? ""}>
+        <Select id="staffId" name="staffId" defaultValue={item.staffId ?? ""}>
           <option value="">Sin especificar</option>
           {staff.map((s) => (
             <option key={s.id} value={s.id}>
@@ -201,11 +263,10 @@ function PhotoForm({ photo, staff, onDone }: { photo: CatalogRow; staff: { id: s
           ))}
         </Select>
       </Field>
-      {error && (
-        <p role="alert" className="text-sm text-st-cancelled">
-          {error}
-        </p>
-      )}
+      <Field label="Descripción" htmlFor="caption" hint="Opcional. Ej.: Fade con mechas platinadas">
+        <Input id="caption" name="caption" defaultValue={item.caption ?? ""} maxLength={80} />
+      </Field>
+      <FormMessage msg={error ? { ok: false, text: error } : null} />
       <Button type="submit" size="lg" disabled={pending}>
         {pending && <Loader2 aria-hidden className="size-4 animate-spin" />} Guardar
       </Button>

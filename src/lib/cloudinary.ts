@@ -10,8 +10,13 @@ export const FOLDERS: Record<UploadKind, string> = {
 };
 export const ALLOWED_FORMATS = "jpg,png,webp";
 
+/** Tipo de archivo en Cloudinary: las fotos van a /image/upload y los videos a /video/upload. */
+export type ResourceType = "image" | "video";
+const FORMATS: Record<ResourceType, string> = { image: ALLOWED_FORMATS, video: "mp4,mov,webm" };
+
 export interface UploadSignature {
   cloudName: string;
+  resourceType: ResourceType;
   apiKey: string;
   timestamp: number;
   folder: string;
@@ -27,14 +32,15 @@ function credentials() {
 }
 
 /** Firma una subida directa desde el navegador. Devuelve null si Cloudinary no está configurado. */
-export function signUpload(kind: UploadKind): UploadSignature | null {
+export function signUpload(kind: UploadKind, resourceType: ResourceType = "image"): UploadSignature | null {
   const c = credentials();
   if (!c) return null;
 
   const folder = FOLDERS[kind];
+  const allowedFormats = FORMATS[resourceType];
   const timestamp = Math.round(Date.now() / 1000);
-  const signature = cloudinary.utils.api_sign_request({ timestamp, folder, allowed_formats: ALLOWED_FORMATS }, c.apiSecret);
-  return { cloudName: c.cloudName, apiKey: c.apiKey, timestamp, folder, allowedFormats: ALLOWED_FORMATS, signature };
+  const signature = cloudinary.utils.api_sign_request({ timestamp, folder, allowed_formats: allowedFormats }, c.apiSecret);
+  return { cloudName: c.cloudName, resourceType, apiKey: c.apiKey, timestamp, folder, allowedFormats, signature };
 }
 
 /**
@@ -42,7 +48,12 @@ export function signUpload(kind: UploadKind): UploadSignature | null {
  * Cloudinary, dentro de la carpeta esperada y con una URL coherente con su public_id.
  * Evita que alguien asocie a un turno imágenes ajenas.
  */
-export function isOwnAsset(cloudName: string, kind: UploadKind, photo: { secureUrl: string; publicId: string }): boolean {
+export function isOwnAsset(
+  cloudName: string,
+  kind: UploadKind,
+  photo: { secureUrl: string; publicId: string },
+  resourceType: ResourceType = "image",
+): boolean {
   if (!photo.publicId.startsWith(`${FOLDERS[kind]}/`) || photo.publicId.includes("..")) return false;
   let url: URL;
   try {
@@ -51,22 +62,22 @@ export function isOwnAsset(cloudName: string, kind: UploadKind, photo: { secureU
     return false;
   }
   const path = decodeURIComponent(url.pathname);
-  return url.protocol === "https:" && url.hostname === "res.cloudinary.com" && path.startsWith(`/${cloudName}/image/upload/`) && path.includes(`/${photo.publicId}.`);
+  return url.protocol === "https:" && url.hostname === "res.cloudinary.com" && path.startsWith(`/${cloudName}/${resourceType}/upload/`) && path.includes(`/${photo.publicId}.`);
 }
 
 /** Valida contra la cuenta configurada. Sin configuración nunca acepta nada. */
-export function isOwnConfiguredAsset(kind: UploadKind, photo: { secureUrl: string; publicId: string }): boolean {
+export function isOwnConfiguredAsset(kind: UploadKind, photo: { secureUrl: string; publicId: string }, resourceType: ResourceType = "image"): boolean {
   const c = credentials();
-  return c !== null && isOwnAsset(c.cloudName, kind, photo);
+  return c !== null && isOwnAsset(c.cloudName, kind, photo, resourceType);
 }
 
 /** Borra el archivo en Cloudinary. Mejor esfuerzo: si falla, el turno no se ve afectado. */
-export async function destroyAsset(publicId: string): Promise<boolean> {
+export async function destroyAsset(publicId: string, resourceType: ResourceType = "image"): Promise<boolean> {
   const c = credentials();
   if (!c) return false;
   try {
     cloudinary.config({ cloud_name: c.cloudName, api_key: c.apiKey, api_secret: c.apiSecret, secure: true });
-    const res = (await cloudinary.uploader.destroy(publicId, { invalidate: true })) as { result?: string };
+    const res = (await cloudinary.uploader.destroy(publicId, { invalidate: true, resource_type: resourceType })) as { result?: string };
     return res.result === "ok";
   } catch (error) {
     console.error("destroyAsset", error);

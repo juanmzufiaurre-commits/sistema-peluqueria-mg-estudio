@@ -4,6 +4,7 @@ import { BarChart3 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
+import { Price } from "@/components/ui/price";
 import { formatArs } from "@/lib/format";
 import type { Report } from "@/server/services/report";
 
@@ -16,14 +17,14 @@ export function MetricsDrawer({ report, monthLabel }: { report: Report; monthLab
 
   return (
     <>
-      <Button variant="outline" onClick={() => setOpen(true)}>
+      <Button variant="outline" className="w-full" onClick={() => setOpen(true)}>
         <BarChart3 aria-hidden className="size-4" /> Ver reporte del mes
       </Button>
 
       <Dialog open={open} onClose={() => setOpen(false)} title={`Reporte · ${monthLabel}`} variant="drawer">
         <div className="flex flex-col gap-8">
           <dl className="grid grid-cols-2 gap-3">
-            <Stat label="Facturación estimada" value={formatArs(report.revenueArs)} />
+            <Stat label="Facturación estimada" value={<Price amount={report.revenueArs} className="font-light" />} />
             <Stat label="Turnos" value={String(report.totalBookings)} />
             <Stat label="Cancelados" value={String(report.cancelled)} />
             <Stat label="Ausentismo" value={report.noShowRate === null ? "—" : `${Math.round(report.noShowRate * 100)}%`} />
@@ -62,11 +63,11 @@ export function MetricsDrawer({ report, monthLabel }: { report: Report; monthLab
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-sm border border-line bg-surface p-4">
+    <div className="surface-card p-4">
       <dt className="text-sm text-muted">{label}</dt>
-      <dd className="mt-1 font-display text-2xl leading-none">{value}</dd>
+      <dd className="mt-2 text-2xl font-light tabular-nums leading-none">{value}</dd>
     </div>
   );
 }
@@ -74,7 +75,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h3 className="label-wide mb-4 text-ink-soft">{title}</h3>
+      <h3 className="label-wide mb-4 text-muted">{title}</h3>
       {children}
     </section>
   );
@@ -84,8 +85,8 @@ const Empty = () => <p className="text-sm text-muted">Todavía no hay datos en e
 
 function Bar({ ratio }: { ratio: number }) {
   return (
-    <div className="h-2 w-full rounded-sm bg-cream-deep" aria-hidden>
-      <div className="h-full rounded-sm bg-ink" style={{ width: `${Math.max(2, ratio * 100)}%` }} />
+    <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink/10" aria-hidden>
+      <div className="h-full rounded-full bg-gradient-to-r from-ink/50 to-ink" style={{ width: `${Math.max(2, ratio * 100)}%` }} />
     </div>
   );
 }
@@ -98,7 +99,7 @@ function Columns({ items }: { items: { label: string; value: number }[] }) {
       {items.map((i) => (
         <li key={i.label} className="flex h-full flex-1 flex-col items-center justify-end gap-1" title={`${i.label}: ${i.value}`}>
           <span className="text-[0.65rem] text-muted">{i.value || ""}</span>
-          <div className="w-full rounded-sm bg-ink" style={{ height: `${(i.value / max) * 100}%`, minHeight: i.value ? 4 : 0 }} />
+          <div className="w-full rounded-t-sm bg-gradient-to-t from-ink/40 to-ink" style={{ height: `${(i.value / max) * 100}%`, minHeight: i.value ? 4 : 0 }} />
           <span className="text-[0.65rem] text-ink-soft">{i.label}</span>
         </li>
       ))}

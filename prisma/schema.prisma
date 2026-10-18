@@ -26,6 +26,11 @@ enum PhotoKind {
   RESULT
 }
 
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
 enum NotificationType {
   CONFIRMATION
   MORNING
@@ -58,6 +63,7 @@ model Service {
   createdAt       DateTime  @default(now()) @db.Timestamptz
   updatedAt       DateTime  @updatedAt @db.Timestamptz
   bookings        Booking[]
+  catalogPhotos   CatalogPhoto[]
 }
 
 model Staff {
@@ -71,12 +77,24 @@ model Staff {
   instagram      String? // usuario sin @
   photoUrl       String?
   photoPublicId  String?         @unique
-  certificate    String? // ej. "Certificado en colorimetría — Academia X"
   createdAt      DateTime        @default(now()) @db.Timestamptz
   bookings       Booking[]
   catalogPhotos  CatalogPhoto[]
   workingHours   WorkingHour[]
   blockedPeriods BlockedPeriod[]
+  certificates   StaffCertificate[]
+}
+
+// Certificados de un profesional (nombre + academia), en el orden en que se cargaron.
+model StaffCertificate {
+  id        String @id @default(cuid())
+  staffId   String
+  staff     Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  name      String // ej. "Colorimetría avanzada"
+  academy   String // ej. "Academia X"
+  sortOrder Int    @default(0)
+
+  @@index([staffId, sortOrder])
 }
 
 model Client {
@@ -129,15 +147,18 @@ model BookingPhoto {
   createdAt DateTime  @default(now()) @db.Timestamptz
 }
 
-// Catálogo de cortes: fotos de trabajos del local que se muestran al público como referencia.
+// Catálogo de cortes: fotos y videos de trabajos del local que se muestran al público como referencia.
 model CatalogPhoto {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
+  mediaType MediaType @default(IMAGE)
   secureUrl String
-  publicId  String   @unique
+  publicId  String    @unique
   caption   String?
   staffId   String? // quién lo hizo
-  staff     Staff?   @relation(fields: [staffId], references: [id], onDelete: SetNull)
-  createdAt DateTime @default(now()) @db.Timestamptz
+  staff     Staff?    @relation(fields: [staffId], references: [id], onDelete: SetNull)
+  serviceId String? // qué servicio se le hizo al cliente
+  service   Service?  @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  createdAt DateTime  @default(now()) @db.Timestamptz
 
   @@index([createdAt])
 }

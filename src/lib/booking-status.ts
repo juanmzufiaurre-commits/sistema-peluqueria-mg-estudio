@@ -32,6 +32,17 @@ export const STATUS_CLASS: Record<BookingStatusValue, string> = {
   CANCELLED_BY_CLIENT: "bg-st-cancelled/15 text-st-cancelled",
 };
 
+/** Color sólido de cada estado (punto y línea lateral de la tarjeta en la agenda). */
+export const STATUS_DOT: Record<BookingStatusValue, string> = {
+  PENDING: "bg-st-pending",
+  CONFIRMED: "bg-st-confirmed",
+  IN_PROGRESS: "bg-st-progress",
+  COMPLETED: "bg-st-done",
+  NO_SHOW: "bg-st-noshow",
+  CANCELLED_BY_ADMIN: "bg-st-cancelled",
+  CANCELLED_BY_CLIENT: "bg-st-cancelled",
+};
+
 /** Estados que ocupan agenda (bloquean el horario). */
 export const ACTIVE: readonly BookingStatusValue[] = ["PENDING", "CONFIRMED", "IN_PROGRESS"];
 

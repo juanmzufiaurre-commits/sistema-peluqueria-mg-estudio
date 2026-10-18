@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { MapPin } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { HeroVideo } from "./hero-video";
@@ -17,7 +16,6 @@ const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayout
 
 interface Props {
   businessName: string;
-  address: string | null;
   children: ReactNode;
 }
 
@@ -27,7 +25,7 @@ interface Props {
  * turno", luego los costados), el degradado y el contenido. Al navegar entre apartados no se repite
  * porque esta portada vive en el layout. Tocar, deslizar o usar el teclado la adelanta.
  */
-export function HeroShell({ businessName, address, children }: Props) {
+export function HeroShell({ businessName, children }: Props) {
   const reduceMotion = useReducedMotion();
   const [intro, setIntro] = useState(true);
   // Con "reducir movimiento" la portada aparece ya acomodada, sin animar.
@@ -111,11 +109,6 @@ export function HeroShell({ businessName, address, children }: Props) {
               <span className="label-wide">Estudio</span>
               <span className="label-wide text-ink-soft">Design and style</span>
             </motion.div>
-            {address && (
-              <p className="flex items-center gap-2 text-sm text-ink-soft">
-                <MapPin aria-hidden className="size-4" strokeWidth={1.5} /> {address}
-              </p>
-            )}
           </div>
         </motion.div>
 

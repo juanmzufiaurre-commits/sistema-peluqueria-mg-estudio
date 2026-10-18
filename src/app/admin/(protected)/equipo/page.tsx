@@ -1,15 +1,16 @@
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { StaffManager } from "@/components/admin/staff-manager";
+import { PageHeader } from "@/components/admin/ui";
 import { db } from "@/lib/db";
 
 export const metadata = { title: "Equipo — MG Estudio" };
 
 export default function TeamPage() {
   return (
-    <div className="mx-auto max-w-3xl">
-      <h1 className="mb-6 font-display text-3xl font-semibold">Equipo</h1>
-      <Suspense fallback={<div className="h-40 animate-pulse rounded-sm bg-cream-deep" />}>
+    <div>
+      <PageHeader eyebrow="Equipo" title="Tu equipo" description="Foto, especialidad, Instagram y certificado de cada profesional. Es lo que se ve en el apartado Profesionales de la página." />
+      <Suspense fallback={<div className="h-64 animate-pulse rounded-sm bg-ink/[0.04]" />}>
         <List />
       </Suspense>
     </div>
@@ -18,7 +19,11 @@ export default function TeamPage() {
 
 async function List() {
   await connection(); // el panel siempre muestra los datos al día
-  const staff = await db.staff.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } });
+  const staff = await db.staff.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" },
+    include: { certificates: { orderBy: { sortOrder: "asc" } } },
+  });
   return (
     <StaffManager
       staff={staff.map((s) => ({
@@ -27,7 +32,7 @@ async function List() {
         role: s.role,
         instagram: s.instagram,
         photoUrl: s.photoUrl,
-        certificate: s.certificate,
+        certificates: s.certificates.map((c) => ({ name: c.name, academy: c.academy })),
       }))}
     />
   );

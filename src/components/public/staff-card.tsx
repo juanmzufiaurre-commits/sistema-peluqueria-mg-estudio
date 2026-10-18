@@ -47,14 +47,18 @@ export function StaffCard({ staff }: { staff: PublicStaff }) {
             <InstagramIcon className="size-4" />@{staff.instagram}
           </a>
         )}
-        {staff.certificate && (
-          <p className="flex items-start gap-2 text-sm text-ink-soft">
-            <BadgeCheck aria-hidden strokeWidth={1.5} className="mt-0.5 size-4 shrink-0 text-ink" />
-            <span>
-              <span className="sr-only">Certificado: </span>
-              {staff.certificate}
-            </span>
-          </p>
+        {staff.certificates.length > 0 && (
+          <ul aria-label="Certificados" className="flex flex-col gap-2">
+            {staff.certificates.map((c, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm">
+                <BadgeCheck aria-hidden strokeWidth={1.5} className="mt-0.5 size-4 shrink-0 text-ink" />
+                <span>
+                  <span className="block text-ink-soft">{c.name}</span>
+                  {c.academy && <span className="block text-xs text-muted">{c.academy}</span>}
+                </span>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </article>

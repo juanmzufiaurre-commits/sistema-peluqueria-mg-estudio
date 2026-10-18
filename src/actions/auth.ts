@@ -5,6 +5,7 @@ import { z } from "zod";
 import { fail, type ActionResult } from "@/lib/action-result";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { adminEmails } from "@/server/auth/admin";
+import { devAdminEmail } from "@/server/auth/dev-admin";
 
 const loginSchema = z.object({
   email: z.email("Ingresá un email válido").transform((e) => e.trim().toLowerCase()),
@@ -27,6 +28,7 @@ export async function loginAction(raw: unknown): Promise<ActionResult> {
 }
 
 export async function logoutAction(): Promise<void> {
+  if (devAdminEmail()) redirect("/"); // acceso de prueba: no hay sesión que cerrar
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
   redirect("/admin/login");

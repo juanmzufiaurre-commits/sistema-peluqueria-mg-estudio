@@ -6,6 +6,8 @@ import { PGLiteSocketServer } from "@electric-sql/pglite-socket";
 
 const port = 54329;
 const db = await PGlite.create("./.local-db", { extensions: { btree_gist } });
+// Igual que Supabase: la sesión en UTC. Con la zona local, Prisma leía las fechas corridas 3 horas.
+await db.exec("ALTER DATABASE postgres SET timezone TO 'UTC'; SET TIME ZONE 'UTC';");
 const server = new PGLiteSocketServer({ db, port, host: "127.0.0.1", maxConnections: 20 });
 await server.start();
 console.log(`Base local lista en postgresql://postgres:postgres@127.0.0.1:${port}/postgres`);
