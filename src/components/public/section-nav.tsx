@@ -47,7 +47,7 @@ export function SectionNav({ revealed = true, instant = false }: { revealed?: bo
                     <motion.span
                       layoutId="section-ring"
                       transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 32 }}
-                      className="absolute inset-0 rounded-sm border border-ink bg-ink/[0.07] shadow-[0_0_28px_-6px] shadow-ink/40"
+                      className="absolute inset-0 rounded-full border border-ink bg-ink/[0.07] shadow-[0_0_28px_-6px] shadow-ink/40"
                     />
                   )}
                   <Icon

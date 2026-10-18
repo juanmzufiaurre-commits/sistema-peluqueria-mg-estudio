@@ -14,7 +14,7 @@ export const viewport: Viewport = { themeColor: "#0a0a0a" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es-AR" suppressHydrationWarning className={`${bodoni.variable} ${jost.variable} h-full antialiased`}>
+    <html lang="es-AR" className={`${bodoni.variable} ${jost.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

@@ -1,6 +1,7 @@
 import { ArrowRight, Clock } from "lucide-react";
 import { Price } from "@/components/ui/price";
 import { formatDuration } from "@/lib/format";
+import { IncludeIcon } from "./include-icon";
 import type { PublicService } from "@/server/services/catalog";
 
 export function StepService({ services, onSelect }: { services: PublicService[]; onSelect: (s: PublicService) => void }) {
@@ -25,13 +26,17 @@ export function StepService({ services, onSelect }: { services: PublicService[];
             <p className="-mt-1 text-[0.95rem] leading-relaxed text-ink-soft">{s.description}</p>
 
             {s.includes.length > 0 && (
-              <ul aria-label="Incluye" className="flex flex-wrap gap-1.5">
-                {s.includes.map((item) => (
-                  <li key={item} className="rounded-sm border border-ink/10 bg-ink/[0.04] px-3 py-1 text-xs text-ink-soft">
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              <div>
+                <p className="label-wide mb-3 text-muted">Incluye:</p>
+                <ul aria-label="Incluye" className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+                  {s.includes.map((item) => (
+                    <li key={item} className="flex items-center gap-2.5 text-sm text-ink-soft">
+                      <IncludeIcon item={item} className="size-4 shrink-0 text-ink" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
 
             <div className="flex items-center justify-between border-t border-ink/10 pt-4">
