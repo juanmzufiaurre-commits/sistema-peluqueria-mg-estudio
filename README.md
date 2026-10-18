@@ -34,7 +34,7 @@ Comandos útiles: `npm test`, `npm run lint`, `npm run typecheck`, `npm run buil
 1. Subir el repo a GitHub e importarlo en Vercel (framework: Next.js, sin cambiar comandos).
 2. Cargar las variables de entorno de la tabla (`DIRECT_URL` no hace falta en Vercel).
 3. Deploy. Después, poner `NEXT_PUBLIC_SITE_URL` con la URL real y redeployar.
-4. En GitHub → Settings → Secrets and variables → Actions, crear `APP_URL` (la URL de Vercel, sin `/` final) y `CRON_SECRET` (el mismo valor). El workflow `.github/workflows/reminders.yml` dispara los avisos.
+4. En GitHub → Settings → Secrets and variables → Actions, crear `APP_URL` (la URL de Vercel, sin `/` final) y `CRON_SECRET` (el mismo valor). El workflow `.github/workflows/reminders.yml` dispara los avisos (**hoy está pausado**: las ejecuciones programadas están comentadas hasta tener el número de WhatsApp y el gateway; las instrucciones para reactivarlo están en el propio archivo).
 5. Supabase → Authentication: crear el usuario admin y desactivar el registro público.
 
 Las migraciones **no** corren en el build: se aplican a mano con `npm run db:migrate` (con `.env` local apuntando a la base de producción).
