@@ -4,6 +4,7 @@ import { addDaysToDateString, dayBoundsUtc, localDateString, timeToMinutes, week
 import { ACTIVE, REVENUE, type BookingStatusValue } from "@/lib/booking-status";
 import type { AgendaBooking, AgendaClient, DayCount, DayMetrics } from "@/types/admin";
 import { loadConfig, loadStaffSchedules } from "./booking";
+import { monthRange } from "@/lib/months";
 import { buildReport, occupancyRatio, type Report } from "./report";
 
 /** Cantidad de turnos activos por día, para `days` días desde `fromDate`. */
@@ -152,4 +153,27 @@ export async function getReport(fromDate: string, toDate: string): Promise<Repor
     })),
     timezone,
   );
+}
+
+export interface MonthSummary {
+  month: string; // "yyyy-MM"
+  bookings: number; // sin cancelados
+}
+
+/**
+ * Meses con historial para la sección Reportes: desde el primer mes con turnos hasta el mes actual
+ * (y los siguientes si ya hay turnos agendados), con cuántos turnos tuvo cada uno.
+ */
+export async function getMonthSummaries(currentMonth: string): Promise<MonthSummary[]> {
+  const { timezone } = await loadConfig();
+  const rows = await db.booking.findMany({ select: { startDatetime: true, status: true } });
+
+  const counts = new Map<string, number>();
+  for (const r of rows) {
+    const m = localDateString(r.startDatetime, timezone).slice(0, 7);
+    const cancelled = r.status === "CANCELLED_BY_ADMIN" || r.status === "CANCELLED_BY_CLIENT";
+    counts.set(m, (counts.get(m) ?? 0) + (cancelled ? 0 : 1));
+  }
+  const months = [...counts.keys(), currentMonth].sort();
+  return monthRange(months[0], months[months.length - 1]).map((month) => ({ month, bookings: counts.get(month) ?? 0 }));
 }

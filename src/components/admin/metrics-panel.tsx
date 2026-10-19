@@ -1,11 +1,12 @@
-import { CalendarCheck, Gauge, Wallet, type LucideIcon } from "lucide-react";
+import { BarChart3, CalendarCheck, Gauge, Wallet, type LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 import { Price } from "@/components/ui/price";
-import type { Report } from "@/server/services/report";
+import { cn } from "@/lib/utils";
 import type { DayMetrics } from "@/types/admin";
-import { MetricsDrawer } from "./metrics-drawer";
 
-/** Resumen del día + acceso al reporte detallado del mes (se abre en un drawer). */
-export function MetricsPanel({ day, month, monthLabel }: { day: DayMetrics; month: Report; monthLabel: string }) {
+/** Resumen del día + acceso a la sección Reportes en el mes del día elegido. */
+export function MetricsPanel({ day, month }: { day: DayMetrics; month: string }) {
   const occupancy = Math.round(day.occupancy * 100);
   return (
     <aside aria-label="Métricas" className="flex flex-col gap-3">
@@ -24,7 +25,9 @@ export function MetricsPanel({ day, month, monthLabel }: { day: DayMetrics; mont
           </div>
         </div>
       </dl>
-      <MetricsDrawer report={month} monthLabel={monthLabel} />
+      <Link href={`/admin/reportes?m=${month}`} className={cn(buttonVariants({ variant: "outline" }), "w-full")}>
+        <BarChart3 aria-hidden className="size-4" /> Ver reportes del mes
+      </Link>
     </aside>
   );
 }

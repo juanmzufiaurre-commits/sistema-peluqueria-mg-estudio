@@ -1,13 +1,14 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { CalendarDays, Images, Scissors, SlidersHorizontal, Users, type LucideIcon } from "lucide-react";
+import { BarChart3, CalendarDays, Images, Scissors, SlidersHorizontal, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const LINKS: { href: string; label: string; short: string; icon: LucideIcon; hint: string }[] = [
   { href: "/admin", label: "Agenda", short: "Agenda", icon: CalendarDays, hint: "Turnos del día" },
+  { href: "/admin/reportes", label: "Reportes", short: "Reportes", icon: BarChart3, hint: "Historial por mes" },
   { href: "/admin/servicios", label: "Servicios", short: "Servicios", icon: Scissors, hint: "Precios y duración" },
   { href: "/admin/equipo", label: "Equipo", short: "Equipo", icon: Users, hint: "Perfiles públicos" },
   { href: "/admin/catalogo", label: "Catálogo", short: "Catálogo", icon: Images, hint: "Fotos de cortes" },
@@ -68,7 +69,7 @@ export function AdminTabBar() {
       aria-label="Secciones"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-ink/10 bg-cream/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
     >
-      <ul className="mx-auto grid max-w-lg grid-cols-5">
+      <ul className="mx-auto grid max-w-lg grid-cols-6">
         {LINKS.map(({ href, short, icon: Icon }) => {
           const active = isActive(href);
           return (
@@ -82,7 +83,7 @@ export function AdminTabBar() {
                 >
                   <Icon aria-hidden strokeWidth={1.5} className="size-[18px]" />
                 </span>
-                <span className={cn("text-[0.6rem] uppercase tracking-[0.1em]", active ? "font-medium text-ink" : "text-muted")}>{short}</span>
+                <span className={cn("text-[0.55rem] uppercase tracking-[0.06em]", active ? "font-medium text-ink" : "text-muted")}>{short}</span>
               </Link>
             </li>
           );
