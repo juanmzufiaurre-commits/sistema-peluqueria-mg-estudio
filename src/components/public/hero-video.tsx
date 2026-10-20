@@ -11,14 +11,17 @@ const EASE = [0.76, 0, 0.24, 1] as const;
  * casi limpio y después se oscurece y se funde en negro hacia abajo para no competir con el texto.
  * El video se arma con scripts/hero-loop.sh.
  *
- * Debajo siempre hay una imagen fija, y el video se hace visible recién cuando de verdad se está
- * reproduciendo. Si el navegador no lo deja arrancar (iPhone en "ahorro de batería", "reducir
- * movimiento"), queda la foto, sin el botón de play que Safari dibuja sobre los videos pausados.
+ * Debajo siempre hay una imagen, y el video se hace visible recién cuando de verdad se está
+ * reproduciendo (así nunca se ve el botón de play que Safari dibuja sobre los videos pausados).
+ * Si el navegador no deja arrancar videos solos (iPhone en "ahorro de batería"), esa imagen pasa a
+ * ser el mismo loop como WebP animado, que sí se mueve. Con "reducir movimiento" queda la foto fija.
  */
 export function HeroVideo({ intro, instant = false }: { intro: boolean; instant?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
   const reduceMotion = useReducedMotion();
   const [playing, setPlaying] = useState(false);
+  // El navegador bloqueó la reproducción automática: se muestra el loop como imagen animada.
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
 
   // Visible solo mientras reproduce. Se escucha acá (no con props de React) porque el video puede
   // arrancar antes de que la página termine de cargar y perderíamos el primer evento "playing".
@@ -53,6 +56,7 @@ export function HeroVideo({ intro, instant = false }: { intro: boolean; instant?
         .catch(() => {});
     };
     v.play().catch(() => {
+      setAutoplayBlocked(true);
       for (const g of gestures) window.addEventListener(g, retry, { passive: true });
     });
     return () => gestures.forEach((g) => window.removeEventListener(g, retry));
@@ -66,7 +70,11 @@ export function HeroVideo({ intro, instant = false }: { intro: boolean; instant?
     // redondea distinto y asomaba una fila de video sin oscurecer (una línea clara) al animar.
     <div aria-hidden className="hero-backdrop pointer-events-none absolute inset-0 -z-10 overflow-hidden">
       {/* eslint-disable-next-line @next/next/no-img-element -- imagen fija de fondo, ya optimizada */}
-      <img src="/video/hero-poster.jpg" alt="" className="absolute inset-0 size-full object-cover lg:scale-105 lg:blur-[2px]" />
+      <img
+        src={autoplayBlocked ? "/video/hero-loop.webp" : "/video/hero-poster.jpg"}
+        alt=""
+        className="absolute inset-0 size-full object-cover lg:scale-105 lg:blur-[2px]"
+      />
       <video
         ref={ref}
         className={cn(

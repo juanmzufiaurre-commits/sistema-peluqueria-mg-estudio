@@ -37,3 +37,8 @@ ffmpeg -v error -y -i "$(V 34)" -i "$(V 36)" -i "$(V 33)" -i "$(V 35)" \
 
 # Imagen fija mientras carga el video (y para quien prefiere menos movimiento).
 ffmpeg -v error -y -ss 2.6 -i "$OUT/hero-loop.mp4" -frames:v 1 -q:v 4 "$OUT/hero-poster.jpg"
+
+# Versión como imagen animada (WebP) para cuando el navegador no deja reproducir videos solos
+# (iPhone en "ahorro de batería"): las imágenes animadas sí se mueven. Más chica y a 12 cuadros/s.
+ffmpeg -v error -y -i "$OUT/hero-loop.mp4" -vf "fps=12,scale=360:-2:flags=lanczos" \
+  -c:v libwebp -loop 0 -quality 50 -compression_level 6 -preset picture "$OUT/hero-loop.webp"
