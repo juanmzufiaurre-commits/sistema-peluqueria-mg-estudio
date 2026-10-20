@@ -46,8 +46,15 @@
   --radius-lg: 4px;
 }
 
+/* Fondo oscuro en html y body, con el color literal antes de la variable: algunos navegadores
+   (p. ej. Avast Secure Browser) dejaban el lienzo blanco debajo de la portada. */
+html,
 body {
-  background: var(--background);
+  background-color: #0a0a0a;
+  background-color: var(--background);
+}
+
+body {
   color: var(--foreground);
   font-family: var(--font-sans);
 }
