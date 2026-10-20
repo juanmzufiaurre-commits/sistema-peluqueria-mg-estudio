@@ -28,7 +28,7 @@ export function SectionNav({ revealed = true, instant = false }: { revealed?: bo
 
   return (
     <nav aria-label="Apartados" className="w-full max-w-xl pb-6 pt-8" inert={!revealed}>
-      <ul className="grid grid-cols-4 items-start">
+      <ul className="grid grid-cols-4 items-start gap-x-1">
         {SECTIONS.map(({ href, label, icon: Icon }, i) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
@@ -63,11 +63,11 @@ export function SectionNav({ revealed = true, instant = false }: { revealed?: bo
                 <span
                   className={cn(
                     "text-center uppercase leading-snug transition-all duration-300 sm:whitespace-nowrap",
-                    // En celular cada columna mide ~85px: "Agendar turno" baja a dos renglones y el
-                    // tracking se abre recién en pantallas más anchas.
+                    // En celular cada columna mide ~85px: "Agendar turno" baja a dos renglones, "Profesionales"
+                    // (una sola palabra) tiene que entrar justo, y el tracking se abre recién en pantallas más anchas.
                     active
-                      ? "text-[0.66rem] font-medium tracking-[0.1em] text-ink sm:text-[0.78rem] sm:tracking-[0.18em]"
-                      : "text-[0.58rem] tracking-[0.1em] text-muted group-hover:text-ink-soft sm:text-[0.64rem] sm:tracking-[0.18em]",
+                      ? "text-[0.6rem] font-medium tracking-[0.04em] text-ink sm:text-[0.78rem] sm:tracking-[0.18em]"
+                      : "text-[0.58rem] tracking-[0.06em] text-muted group-hover:text-ink-soft sm:text-[0.64rem] sm:tracking-[0.18em]",
                   )}
                 >
                   {label}
