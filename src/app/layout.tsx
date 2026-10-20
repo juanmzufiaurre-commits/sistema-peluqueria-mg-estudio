@@ -16,7 +16,14 @@ export const viewport: Viewport = { themeColor: "#0a0a0a", colorScheme: "dark" }
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="es-AR" className={`${bodoni.variable} ${jost.variable} h-full bg-cream antialiased`}>
-      <body className="flex min-h-full flex-col bg-cream">{children}</body>
+      <body className="flex min-h-full flex-col bg-cream">
+        {/* Capa negra fija detrás de todo, con el color en línea. Algunos navegadores (Avast Secure
+            Browser) pintan blanco el fondo de html/body aunque la página lo declare oscuro. Sin z-index
+            negativo: así queda por encima del fondo de body y por debajo del contenido (que va después
+            y está posicionado). */}
+        <div aria-hidden style={{ position: "fixed", inset: 0, backgroundColor: "#0a0a0a", pointerEvents: "none" }} />
+        <div className="relative flex flex-1 flex-col">{children}</div>
+      </body>
     </html>
   );
 }

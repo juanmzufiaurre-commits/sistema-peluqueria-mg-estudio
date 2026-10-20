@@ -1,18 +1,36 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 
 const EASE = [0.76, 0, 0.24, 1] as const;
 
 /**
  * Loop de trabajos del estudio detrás del logo y el menú. Va silenciado; durante la intro se ve
  * casi limpio y después se oscurece y se funde en negro hacia abajo para no competir con el texto.
- * Con "reducir movimiento" queda la imagen fija. El video se arma con scripts/hero-loop.sh.
+ * El video se arma con scripts/hero-loop.sh.
+ *
+ * Debajo siempre hay una imagen fija, y el video se hace visible recién cuando de verdad se está
+ * reproduciendo. Si el navegador no lo deja arrancar (iPhone en "ahorro de batería", "reducir
+ * movimiento"), queda la foto, sin el botón de play que Safari dibuja sobre los videos pausados.
  */
 export function HeroVideo({ intro, instant = false }: { intro: boolean; instant?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
   const reduceMotion = useReducedMotion();
+  const [playing, setPlaying] = useState(false);
+
+  // Visible solo mientras reproduce. Se escucha acá (no con props de React) porque el video puede
+  // arrancar antes de que la página termine de cargar y perderíamos el primer evento "playing".
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    const sync = () => setPlaying(!v.paused && !v.ended && v.readyState > 2);
+    sync();
+    const events = ["playing", "pause", "waiting", "ended"] as const;
+    for (const e of events) v.addEventListener(e, sync);
+    return () => events.forEach((e) => v.removeEventListener(e, sync));
+  }, []);
 
   useEffect(() => {
     const v = ref.current;
@@ -47,11 +65,15 @@ export function HeroVideo({ intro, instant = false }: { intro: boolean; instant?
     // velos se dibujan en capas separadas y, si el borde inferior cae en medio píxel, cada capa se
     // redondea distinto y asomaba una fila de video sin oscurecer (una línea clara) al animar.
     <div aria-hidden className="hero-backdrop pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      {/* eslint-disable-next-line @next/next/no-img-element -- imagen fija de fondo, ya optimizada */}
+      <img src="/video/hero-poster.jpg" alt="" className="absolute inset-0 size-full object-cover lg:scale-105 lg:blur-[2px]" />
       <video
         ref={ref}
-        className="hero-video absolute inset-0 size-full object-cover lg:scale-105 lg:blur-[2px]"
+        className={cn(
+          "hero-video absolute inset-0 size-full object-cover transition-opacity duration-1000 lg:scale-105 lg:blur-[2px]",
+          playing ? "opacity-100" : "opacity-0",
+        )}
         src="/video/hero-loop.mp4"
-        poster="/video/hero-poster.jpg"
         autoPlay
         muted
         loop

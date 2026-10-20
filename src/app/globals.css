@@ -117,11 +117,6 @@ body {
   mask-image: linear-gradient(to bottom, black calc(100% - 48px), transparent);
 }
 
-/* Video de la portada: entra suave cuando ya puede reproducirse */
-.hero-video {
-  animation: hero-video-in 1.2s ease-out both;
-}
-
 /* iPhone en ahorro de batería: no mostrar el botón de play encima del fondo (se ve el póster).
    Reglas separadas a propósito: si un navegador no conoce uno de los selectores, descarta la regla entera. */
 .hero-video::-webkit-media-controls-start-playback-button {
@@ -133,12 +128,6 @@ body {
 }
 .hero-video::-webkit-media-controls {
   display: none !important;
-}
-
-@keyframes hero-video-in {
-  from {
-    opacity: 0;
-  }
 }
 
 /* Con "reducir movimiento" la portada se muestra acomodada desde el primer cuadro, sin esperar al JS.
