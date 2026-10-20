@@ -8,6 +8,7 @@ import type { BookingReceipt } from "@/actions/bookings";
 import type { ActionResult } from "@/lib/action-result";
 import { formatArs, formatDuration } from "@/lib/format";
 import type { PublicInfo, PublicService } from "@/server/services/catalog";
+import type { PublicStaff } from "@/server/services/team";
 import { StepContact } from "./step-contact";
 import { StepDateTime, StepDateTimeSkeleton } from "./step-datetime";
 import { StepService } from "./step-service";
@@ -27,10 +28,11 @@ const TITLES: Record<Step, string> = {
   done: "",
 };
 
-export function BookingWizard({ services, info }: { services: PublicService[]; info: PublicInfo }) {
+export function BookingWizard({ services, info, team }: { services: PublicService[]; info: PublicInfo; team: PublicStaff[] }) {
   const [step, setStep] = useState<Step>("service");
   const [service, setService] = useState<PublicService | null>(null);
   const [startsAt, setStartsAt] = useState<string | null>(null);
+  const [staffId, setStaffId] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<BookingReceipt | null>(null);
   const [availability, setAvailability] = useState<Promise<ActionResult<AvailableDay[]>> | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
@@ -108,9 +110,11 @@ export function BookingWizard({ services, info }: { services: PublicService[]; i
             <Suspense fallback={<StepDateTimeSkeleton />}>
               <StepDateTime
                 availability={availability}
+                team={team}
                 onRetry={() => loadAvailability(service)}
-                onSelect={(iso) => {
+                onSelect={(iso, staff) => {
                   setStartsAt(iso);
+                  setStaffId(staff);
                   go("contact");
                 }}
               />
@@ -121,6 +125,7 @@ export function BookingWizard({ services, info }: { services: PublicService[]; i
             <StepContact
               service={service}
               startsAt={startsAt}
+              staff={team.find((s) => s.id === staffId) ?? null}
               onPickAnotherSlot={() => {
                 loadAvailability(service);
                 go("datetime");

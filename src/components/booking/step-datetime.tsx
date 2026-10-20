@@ -6,20 +6,26 @@ import type { AvailableDay } from "@/actions/availability";
 import { dayParts } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import type { PublicStaff } from "@/server/services/team";
+import { StaffPicker } from "./staff-picker";
 import { TimeCarousel } from "./time-carousel";
 
 interface Props {
   availability: Promise<ActionResult<AvailableDay[]>>;
-  onSelect: (startsAtIso: string) => void;
+  /** Sin `team` no se ofrece elegir profesional (p. ej. al reprogramar). */
+  team?: PublicStaff[];
+  onSelect: (startsAtIso: string, staffId: string | null) => void;
   onRetry: () => void;
 }
 
 /** Se suspende hasta que llegan los horarios; el padre provee el Suspense con el esqueleto. */
-export function StepDateTime({ availability, onSelect, onRetry }: Props) {
+export function StepDateTime({ availability, team = [], onSelect, onRetry }: Props) {
   const result = use(availability);
   const days = result.success ? (result.data ?? []) : [];
   const firstWithSlots = days.find((d) => d.slots.length > 0)?.date;
   const [selected, setSelected] = useState<string | undefined>(firstWithSlots);
+  // Profesional elegido. Si en el horario del centro no está libre, se trata como "sin preferencia".
+  const [staffChoice, setStaffChoice] = useState<string | null>(null);
 
   if (!result.success) {
     return (
@@ -38,7 +44,10 @@ export function StepDateTime({ availability, onSelect, onRetry }: Props) {
     return <p className="text-muted">No hay horarios disponibles en los próximos días. Probá más tarde o escribinos por WhatsApp.</p>;
   }
 
-  const slots = days.find((d) => d.date === selected)?.slots ?? [];
+  const day = days.find((d) => d.date === selected);
+  const slots = day?.slots ?? [];
+  const freeAt = (iso: string) => day?.slotStaff?.[slots.indexOf(iso)] ?? [];
+  const effectiveStaff = (iso: string) => (staffChoice && freeAt(iso).includes(staffChoice) ? staffChoice : null);
 
   return (
     <div className="flex flex-col gap-8">
@@ -76,7 +85,16 @@ export function StepDateTime({ availability, onSelect, onRetry }: Props) {
       <div>
         <p className="label-wide mb-4 text-ink-soft">Horarios disponibles</p>
         {/* key: al cambiar de día la rueda arranca de nuevo en el primer horario */}
-        <TimeCarousel key={selected} slots={slots} onSelect={onSelect} />
+        <TimeCarousel
+          key={selected}
+          slots={slots}
+          onSelect={(iso) => onSelect(iso, effectiveStaff(iso))}
+          renderExtra={
+            team.length > 1 && day?.slotStaff
+              ? (iso) => <StaffPicker team={team} available={freeAt(iso)} value={effectiveStaff(iso)} onChange={setStaffChoice} />
+              : undefined
+          }
+        />
       </div>
     </div>
   );

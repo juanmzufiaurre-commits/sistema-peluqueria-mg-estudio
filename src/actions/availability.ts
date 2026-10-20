@@ -7,12 +7,16 @@ export interface AvailableDay {
   date: string; // yyyy-MM-dd
   /** Horarios libres en ISO UTC. Vacío = día deshabilitado en el calendario. */
   slots: string[];
+  /** Para cada horario (mismo orden que `slots`), los profesionales libres. Solo en la reserva nueva. */
+  slotStaff?: string[][];
 }
 
 export async function getAvailabilityAction(serviceId: string): Promise<ActionResult<AvailableDay[]>> {
   try {
     const days = await getAvailability(serviceId);
-    return ok(days.map((d) => ({ date: d.date, slots: d.slots.map((s) => s.startsAt.toISOString()) })));
+    return ok(
+      days.map((d) => ({ date: d.date, slots: d.slots.map((s) => s.startsAt.toISOString()), slotStaff: d.slots.map((s) => s.staffIds) })),
+    );
   } catch (error) {
     if (error instanceof BookingError) return fail(error.message);
     console.error("getAvailabilityAction", error);

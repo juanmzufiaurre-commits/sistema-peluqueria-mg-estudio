@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
+  // Solo `next dev`: permite abrir el servidor de desarrollo desde el celular en la misma red WiFi
+  // (http://192.168.x.x:3000). No tiene efecto en producción.
+  allowedDevOrigins: ["192.168.*.*", "10.*.*.*"],
   async headers() {
     return [
       {

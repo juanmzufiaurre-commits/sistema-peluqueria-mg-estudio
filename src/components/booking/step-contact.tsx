@@ -12,6 +12,7 @@ import { Field, Input } from "@/components/ui/field";
 import { formatDuration, formatLongDate, formatTime } from "@/lib/format";
 import { createBookingSchema } from "@/lib/validation/booking";
 import type { PublicService } from "@/server/services/catalog";
+import type { PublicStaff } from "@/server/services/team";
 import { PhotoDropzone, type PhotoItem } from "./photo-dropzone";
 
 const contactSchema = createBookingSchema.pick({ firstName: true, lastName: true, phone: true, website: true });
@@ -21,11 +22,13 @@ type ContactOutput = z.output<typeof contactSchema>;
 interface Props {
   service: PublicService;
   startsAt: string;
+  /** Profesional elegido; null = el primero libre. */
+  staff: PublicStaff | null;
   onBooked: (receipt: BookingReceipt) => void;
   onPickAnotherSlot: () => void;
 }
 
-export function StepContact({ service, startsAt, onBooked, onPickAnotherSlot }: Props) {
+export function StepContact({ service, startsAt, staff, onBooked, onPickAnotherSlot }: Props) {
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [serverError, setServerError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -44,6 +47,7 @@ export function StepContact({ service, startsAt, onBooked, onPickAnotherSlot }: 
       const result = await createBookingAction({
         serviceId: service.id,
         startsAt,
+        staffId: staff?.id ?? null,
         firstName: values.firstName,
         lastName: values.lastName,
         phone: values.phone,
@@ -62,6 +66,7 @@ export function StepContact({ service, startsAt, onBooked, onPickAnotherSlot }: 
         <p className="mt-1 text-sm text-ink-soft">
           {formatLongDate(startsAt)} · {formatTime(startsAt)} hs
         </p>
+        <p className="mt-1 text-sm text-ink-soft">{staff ? `Con ${staff.name}` : "Con el primer profesional libre"}</p>
         <p className="mt-4 flex items-center justify-between border-t border-ink/10 pt-4 text-sm text-ink-soft">
           <span>{formatDuration(service.durationMinutes)}</span>
           <Price amount={service.priceArs} className="text-xl text-ink" />

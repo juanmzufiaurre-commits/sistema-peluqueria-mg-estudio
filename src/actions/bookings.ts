@@ -12,6 +12,7 @@ export interface BookingReceipt {
   endsAt: string;
   durationMinutes: number;
   serviceName: string;
+  staffName: string;
   priceArs: number;
 }
 
@@ -30,6 +31,7 @@ export async function createBookingAction(raw: unknown): Promise<ActionResult<Bo
     const booking = await createBooking({
       serviceId: data.serviceId,
       startsAt: new Date(data.startsAt),
+      staffId: data.staffId ?? null,
       client: { firstName: data.firstName, lastName: data.lastName, phoneE164: data.phone },
       photos: data.photos,
     });
@@ -40,6 +42,7 @@ export async function createBookingAction(raw: unknown): Promise<ActionResult<Bo
       endsAt: booking.endsAt.toISOString(),
       durationMinutes: booking.durationMinutes,
       serviceName: booking.serviceName,
+      staffName: booking.staffName,
       priceArs: booking.priceArs,
     });
   } catch (error) {

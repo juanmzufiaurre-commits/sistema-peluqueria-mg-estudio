@@ -36,6 +36,22 @@ describe("buildReport", () => {
     expect(buildReport([b("2030-01-07", "10:00")], TZ).noShowRate).toBeNull();
   });
 
+  it("suma turnos, facturación y ausencias por profesional, sin contar cancelados", () => {
+    const rs = buildReport(
+      [
+        b("2030-01-07", "10:00", { staffName: "Ana", status: "COMPLETED" }),
+        b("2030-01-07", "11:00", { staffName: "Ana", status: "NO_SHOW" }),
+        b("2030-01-07", "12:00", { staffName: "Beto", priceArs: 60000 }),
+        b("2030-01-07", "13:00", { staffName: "Beto", status: "CANCELLED_BY_ADMIN" }),
+      ],
+      TZ,
+    );
+    expect(rs.byStaff).toEqual([
+      { name: "Beto", count: 1, revenueArs: 60000, noShows: 0 },
+      { name: "Ana", count: 2, revenueArs: 16000, noShows: 1 },
+    ]);
+  });
+
   it("ordena servicios por cantidad", () => {
     expect(r.topServices.map((s) => s.name)).toEqual(["Corte", "Corte y Global"]);
     expect(r.topServices[0]).toMatchObject({ count: 2, revenueArs: 32000 });

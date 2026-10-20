@@ -3,17 +3,24 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { addMonths, monthShort } from "@/lib/months";
 import { cn } from "@/lib/utils";
-import type { MonthSummary } from "@/server/services/agenda";
 
-const hrefFor = (month: string) => `/admin/reportes?m=${month}`;
+export interface PeriodItem {
+  key: string;
+  href: string;
+  /** Línea chica de arriba (año, "Este mes", "Esta semana") */
+  top: string;
+  /** Texto principal (mes o rango de días) */
+  main: string;
+  bookings: number;
+}
 
-/** Tira de meses (como la de días en la agenda): flechas a los costados y turnos de cada mes. */
-export function MonthRail({ months, selected, current }: { months: MonthSummary[]; selected: string; current: string }) {
+/** Tira de períodos (meses o semanas) como la de días de la agenda: flechas a los costados y turnos de cada uno. */
+export function PeriodRail({ items, selected, label, wide = false }: { items: PeriodItem[]; selected: string; label: string; wide?: boolean }) {
   const stripRef = useRef<HTMLUListElement>(null);
-  const first = months[0]?.month ?? selected;
-  const last = months[months.length - 1]?.month ?? selected;
+  const index = items.findIndex((i) => i.key === selected);
+  const prev = index > 0 ? items[index - 1] : null;
+  const next = index >= 0 && index < items.length - 1 ? items[index + 1] : null;
 
   useEffect(() => {
     const strip = stripRef.current;
@@ -23,26 +30,25 @@ export function MonthRail({ months, selected, current }: { months: MonthSummary[
   }, [selected]);
 
   return (
-    <nav aria-label="Meses" className="flex items-stretch gap-2">
-      <Arrow href={selected > first ? hrefFor(addMonths(selected, -1)) : null} label="Mes anterior" icon={ChevronLeft} />
+    <nav aria-label={label} className="flex items-stretch gap-2">
+      <Arrow href={prev?.href ?? null} label="Anterior" icon={ChevronLeft} />
       <ul ref={stripRef} className="flex min-w-0 flex-1 snap-x gap-2 overflow-x-auto py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {months.map((m) => {
-          const active = m.month === selected;
+        {items.map((m) => {
+          const active = m.key === selected;
           return (
-            <li key={m.month} className="shrink-0 snap-center">
+            <li key={m.key} className="shrink-0 snap-center">
               <Link
-                href={hrefFor(m.month)}
+                href={m.href}
                 scroll={false}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex w-20 flex-col items-center gap-1 rounded-sm border py-3 transition-all duration-300",
+                  "flex flex-col items-center gap-1 rounded-sm border py-3 transition-all duration-300",
+                  wide ? "w-32" : "w-20",
                   active ? "border-ink bg-ink/[0.08] shadow-[0_0_24px_-8px] shadow-ink/50" : "border-ink/10 bg-ink/[0.02] hover:border-ink/30",
                 )}
               >
-                <span className={cn("text-[0.6rem] uppercase tracking-[0.2em]", m.month === current ? "text-ink" : "text-muted")}>
-                  {m.month === current ? "Este mes" : m.month.slice(0, 4)}
-                </span>
-                <span className="text-xl font-light capitalize leading-none">{monthShort(m.month)}</span>
+                <span className={cn("text-[0.6rem] uppercase tracking-[0.2em]", active ? "text-ink" : "text-muted")}>{m.top}</span>
+                <span className={cn("font-light capitalize leading-none", wide ? "text-base" : "text-xl")}>{m.main}</span>
                 <span className={cn("mt-1 text-[0.65rem] tabular-nums", m.bookings ? "text-ink-soft" : "text-muted/60")}>
                   {m.bookings} {m.bookings === 1 ? "turno" : "turnos"}
                 </span>
@@ -51,7 +57,7 @@ export function MonthRail({ months, selected, current }: { months: MonthSummary[
           );
         })}
       </ul>
-      <Arrow href={selected < last ? hrefFor(addMonths(selected, 1)) : null} label="Mes siguiente" icon={ChevronRight} />
+      <Arrow href={next?.href ?? null} label="Siguiente" icon={ChevronRight} />
     </nav>
   );
 }

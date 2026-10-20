@@ -17,8 +17,27 @@ export function HeroVideo({ intro, instant = false }: { intro: boolean; instant?
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    if (reduceMotion) v.pause();
-    else v.play().catch(() => {}); // si el navegador bloquea el autoplay, queda el póster
+    if (reduceMotion) {
+      v.pause();
+      return;
+    }
+    // iOS solo reproduce solo si el video está silenciado desde el arranque (React no siempre deja
+    // el atributo puesto), y en "ahorro de batería" no reproduce nada hasta que la persona toca la
+    // pantalla: en ese caso queda el póster y se arranca con el primer toque o deslizamiento.
+    v.muted = true;
+    v.defaultMuted = true;
+    v.setAttribute("muted", "");
+
+    const gestures = ["touchstart", "pointerdown", "scroll", "keydown"] as const;
+    const retry = () => {
+      v.play()
+        .then(() => gestures.forEach((g) => window.removeEventListener(g, retry)))
+        .catch(() => {});
+    };
+    v.play().catch(() => {
+      for (const g of gestures) window.addEventListener(g, retry, { passive: true });
+    });
+    return () => gestures.forEach((g) => window.removeEventListener(g, retry));
   }, [reduceMotion]);
 
   const fade = { duration: reduceMotion || instant ? 0 : 1.1, ease: EASE };

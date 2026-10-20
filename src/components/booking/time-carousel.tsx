@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { centeredIndex, distanceFromCenter, scrollLeftFor } from "@/lib/carousel";
 import { formatTime } from "@/lib/format";
@@ -11,6 +11,8 @@ interface Props {
   /** Horarios en ISO UTC, ordenados. */
   slots: string[];
   onSelect: (startsAtIso: string) => void;
+  /** Contenido que depende del horario del centro (p. ej. elegir profesional), antes del botón. */
+  renderExtra?: (startsAtIso: string) => ReactNode;
 }
 
 // Cuánto se atenúa cada posición respecto del centro. Más allá de 2 queda fuera de la vista.
@@ -25,7 +27,7 @@ const LOOK: Record<number, string> = {
  * y al deslizar entran horarios nuevos mientras los anteriores salen de la vista.
  * El desplazamiento es nativo (scroll-snap), así que funciona con el dedo, el trackpad y la rueda.
  */
-export function TimeCarousel({ slots, onSelect }: Props) {
+export function TimeCarousel({ slots, onSelect, renderExtra }: Props) {
   const scroller = useRef<HTMLUListElement>(null);
   const frame = useRef<number | null>(null);
   const [index, setIndex] = useState(0);
@@ -150,6 +152,8 @@ export function TimeCarousel({ slots, onSelect }: Props) {
       <span role="status" aria-live="polite" className="sr-only">
         Horario seleccionado: {selected && formatTime(selected)}
       </span>
+
+      {selected && renderExtra?.(selected)}
 
       <Button size="lg" onClick={() => onSelect(selected)}>
         Continuar con las {selected && formatTime(selected)} hs

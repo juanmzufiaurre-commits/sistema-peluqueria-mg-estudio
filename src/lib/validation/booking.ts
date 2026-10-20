@@ -11,6 +11,8 @@ const photoSchema = z.object({
 export const createBookingSchema = z.object({
   serviceId: z.string().min(1, "Elegí un servicio"),
   startsAt: z.iso.datetime({ message: "Elegí un horario" }),
+  /** Profesional elegido por el cliente; null/ausente = el primero libre. */
+  staffId: z.string().min(1).nullable().optional(),
   firstName: z.string().trim().min(2, "Ingresá tu nombre").max(60),
   lastName: z.string().trim().min(2, "Ingresá tu apellido").max(60),
   phone: z

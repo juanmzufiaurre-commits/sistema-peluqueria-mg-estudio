@@ -5,6 +5,7 @@ import { ACTIVE, REVENUE, type BookingStatusValue } from "@/lib/booking-status";
 import type { AgendaBooking, AgendaClient, DayCount, DayMetrics } from "@/types/admin";
 import { loadConfig, loadStaffSchedules } from "./booking";
 import { monthRange } from "@/lib/months";
+import { weekRange, weekStart } from "@/lib/weeks";
 import { buildReport, occupancyRatio, type Report } from "./report";
 
 /** Cantidad de turnos activos por día, para `days` días desde `fromDate`. */
@@ -140,13 +141,14 @@ export async function getReport(fromDate: string, toDate: string): Promise<Repor
 
   const rows = await db.booking.findMany({
     where: { startDatetime: { gte: from, lt: to } },
-    select: { startDatetime: true, serviceNameSnapshot: true, priceArs: true, durationMinutes: true, status: true },
+    select: { startDatetime: true, serviceNameSnapshot: true, priceArs: true, durationMinutes: true, status: true, staff: { select: { name: true } } },
   });
 
   return buildReport(
     rows.map((r) => ({
       startsAt: r.startDatetime,
       serviceName: r.serviceNameSnapshot,
+      staffName: r.staff.name,
       priceArs: r.priceArs,
       durationMinutes: r.durationMinutes,
       status: r.status,
@@ -155,25 +157,37 @@ export async function getReport(fromDate: string, toDate: string): Promise<Repor
   );
 }
 
-export interface MonthSummary {
-  month: string; // "yyyy-MM"
+export interface PeriodSummary {
+  key: string; // mes "yyyy-MM" o lunes de la semana "yyyy-MM-dd"
   bookings: number; // sin cancelados
 }
 
-/**
- * Meses con historial para la sección Reportes: desde el primer mes con turnos hasta el mes actual
- * (y los siguientes si ya hay turnos agendados), con cuántos turnos tuvo cada uno.
- */
-export async function getMonthSummaries(currentMonth: string): Promise<MonthSummary[]> {
+/** Turnos (sin cancelados) agrupados por período. Una sola consulta para toda la historia. */
+async function countBookingsBy(keyOf: (localDate: string) => string): Promise<Map<string, number>> {
   const { timezone } = await loadConfig();
   const rows = await db.booking.findMany({ select: { startDatetime: true, status: true } });
-
   const counts = new Map<string, number>();
   for (const r of rows) {
-    const m = localDateString(r.startDatetime, timezone).slice(0, 7);
+    const key = keyOf(localDateString(r.startDatetime, timezone));
     const cancelled = r.status === "CANCELLED_BY_ADMIN" || r.status === "CANCELLED_BY_CLIENT";
-    counts.set(m, (counts.get(m) ?? 0) + (cancelled ? 0 : 1));
+    counts.set(key, (counts.get(key) ?? 0) + (cancelled ? 0 : 1));
   }
-  const months = [...counts.keys(), currentMonth].sort();
-  return monthRange(months[0], months[months.length - 1]).map((month) => ({ month, bookings: counts.get(month) ?? 0 }));
+  return counts;
+}
+
+/**
+ * Meses con historial para la sección Reportes: desde el primer mes con turnos hasta el actual
+ * (y los siguientes si ya hay turnos agendados), con cuántos turnos tuvo cada uno.
+ */
+export async function getMonthSummaries(currentMonth: string): Promise<PeriodSummary[]> {
+  const counts = await countBookingsBy((d) => d.slice(0, 7));
+  const keys = [...counts.keys(), currentMonth].sort();
+  return monthRange(keys[0], keys[keys.length - 1]).map((key) => ({ key, bookings: counts.get(key) ?? 0 }));
+}
+
+/** Igual que los meses, pero por semana (lunes a domingo). */
+export async function getWeekSummaries(currentWeek: string): Promise<PeriodSummary[]> {
+  const counts = await countBookingsBy(weekStart);
+  const keys = [...counts.keys(), currentWeek].sort();
+  return weekRange(keys[0], keys[keys.length - 1]).map((key) => ({ key, bookings: counts.get(key) ?? 0 }));
 }

@@ -27,6 +27,8 @@ export class BookingError extends Error {
 export interface CreateBookingInput {
   serviceId: string;
   startsAt: Date;
+  /** Profesional elegido por el cliente. Sin elegir: se asigna el libre con menos turnos ese día. */
+  staffId?: string | null;
   client: { firstName: string; lastName: string; phoneE164: string };
   photos: { secureUrl: string; publicId: string }[];
 }
@@ -40,6 +42,7 @@ export interface CreatedBooking {
   endsAt: Date;
   durationMinutes: number;
   staffId: string;
+  staffName: string;
   serviceName: string;
   priceArs: number;
 }
@@ -126,9 +129,9 @@ export function isOverlapViolation(error: unknown): boolean {
 }
 
 /**
- * Crea el turno asignando automáticamente al profesional libre con menos carga ese día.
- * La integridad final la garantiza la restricción EXCLUDE de la base: si dos clientes
- * reservan a la vez, la segunda inserción falla y se prueba con otro profesional.
+ * Crea el turno con el profesional elegido o, si el cliente no eligió, con el libre que menos
+ * turnos tiene ese día. La integridad final la garantiza la restricción EXCLUDE de la base: si dos
+ * clientes reservan a la vez, la segunda inserción falla y (sin elección) se prueba con otro.
  */
 export async function createBooking(input: CreateBookingInput, now: Date = new Date()): Promise<CreatedBooking> {
   const [service, config, staff] = await Promise.all([
@@ -147,12 +150,17 @@ export async function createBooking(input: CreateBookingInput, now: Date = new D
   );
   if (!slot) throw new BookingError("SLOT_UNAVAILABLE", "Ese horario ya no está disponible. Elegí otro.");
 
+  if (input.staffId && !slot.staffIds.includes(input.staffId)) {
+    throw new BookingError("SLOT_UNAVAILABLE", "Ese profesional ya no está libre a esa hora. Elegí otro o cualquier profesional.");
+  }
+
   const dayLoad = new Map<string, number>();
   for (const b of bookingStaff) dayLoad.set(b.staffId, (dayLoad.get(b.staffId) ?? 0) + 1);
+  const candidates = input.staffId ? [input.staffId] : rankStaffByLoad(slot.staffIds, dayLoad);
 
   const endsAt = occupiedEnd(input.startsAt, service.durationMinutes, config.bufferMinutes);
 
-  for (const staffId of rankStaffByLoad(slot.staffIds, dayLoad)) {
+  for (const staffId of candidates) {
     const { token, hash } = generateCancelToken();
     try {
       const booking = await db.$transaction(async (tx) => {
@@ -162,6 +170,7 @@ export async function createBooking(input: CreateBookingInput, now: Date = new D
           create: { phoneE164: input.client.phoneE164, firstName: input.client.firstName, lastName: input.client.lastName },
         });
         return tx.booking.create({
+          include: { staff: { select: { name: true } } },
           data: {
             publicCode: generatePublicCode(),
             clientId: client.id,
@@ -187,6 +196,7 @@ export async function createBooking(input: CreateBookingInput, now: Date = new D
         endsAt: booking.endDatetime,
         durationMinutes: service.durationMinutes,
         staffId,
+        staffName: booking.staff.name,
         serviceName: service.name,
         priceArs: service.priceArs,
       };
@@ -196,7 +206,10 @@ export async function createBooking(input: CreateBookingInput, now: Date = new D
     }
   }
 
-  throw new BookingError("SLOT_UNAVAILABLE", "Ese horario acaba de ser reservado. Elegí otro.");
+  throw new BookingError(
+    "SLOT_UNAVAILABLE",
+    input.staffId ? "Ese profesional acaba de ocupar ese horario. Elegí otro o cualquier profesional." : "Ese horario acaba de ser reservado. Elegí otro.",
+  );
 }
 
 // ───────────────────────── Cancelar y reprogramar ─────────────────────────

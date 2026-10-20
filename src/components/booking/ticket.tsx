@@ -58,6 +58,7 @@ export function Ticket({ receipt, businessName, address, onNewBooking }: Props) 
         </div>
         <dl className="flex flex-col gap-3 p-5 text-sm">
           <Row label="Servicio" value={receipt.serviceName} />
+          <Row label="Profesional" value={receipt.staffName} />
           <Row label="Día" value={formatLongDate(receipt.startsAt)} />
           <Row label="Hora" value={`${formatTime(receipt.startsAt)} hs`} />
           <Row label="Duración" value={formatDuration(receipt.durationMinutes)} />
