@@ -77,6 +77,7 @@ export async function addClientNoteAction(raw: unknown): Promise<ActionResult> {
     data: { clientId: parsed.data.clientId, bookingId: parsed.data.bookingId, body: parsed.data.body, authorId: admin.id },
   });
   revalidatePath("/admin");
+  revalidatePath("/admin/clientes", "layout"); // la nota también se ve en la ficha del cliente
   return ok();
 }
 

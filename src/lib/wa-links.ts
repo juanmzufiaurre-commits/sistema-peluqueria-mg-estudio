@@ -44,6 +44,13 @@ export function waMessage(template: WaTemplate, c: WaContext): string {
   }
 }
 
+/** Saludo para escribirle a un cliente desde su ficha, sin un turno en particular. */
+export const waGreeting = (firstName: string, businessName: string): string => `Hola ${firstName}, te escribimos de ${businessName}.`;
+
+/** Para invitar a volver a un cliente que hace tiempo que no viene. */
+export const waComeBack = (firstName: string, businessName: string, rebookUrl: string): string =>
+  `Hola ${firstName}, ¿cómo estás? Hace un tiempo que no te vemos por ${businessName}. Cuando quieras, reservá tu próximo turno acá: ${rebookUrl} ¡Te esperamos!`;
+
 export function waLink(phoneE164: string, text: string): string {
   return `https://wa.me/${toWaMeNumber(phoneE164)}?text=${encodeURIComponent(text)}`;
 }

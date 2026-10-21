@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
+  ArrowUpRight,
   CalendarClock,
   CalendarX2,
   ChevronDown,
@@ -17,6 +18,7 @@ import {
   Wallet,
   type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { addClientNoteAction, cancelBookingByAdminAction, setBookingStatusAction } from "@/actions/admin-bookings";
 import { Button } from "@/components/ui/button";
@@ -30,6 +32,7 @@ import type { AgendaBooking } from "@/types/admin";
 import { PhotoGallery } from "./photo-gallery";
 import { RescheduleDialog } from "./reschedule-dialog";
 import { ResultPhotos } from "./result-photos";
+import { StatusBadge } from "./status-badge";
 import { EmptyState } from "./ui";
 
 interface Props {
@@ -151,15 +154,6 @@ function BookingCard({ booking: b, expanded, onToggle, ctx }: { booking: AgendaB
         )}
       </AnimatePresence>
     </article>
-  );
-}
-
-function StatusBadge({ status }: { status: BookingStatusValue }) {
-  return (
-    <span className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.1em]", STATUS_CLASS[status])}>
-      <span aria-hidden className={cn("size-1.5 rounded-full", STATUS_DOT[status])} />
-      {STATUS_LABEL[status]}
-    </span>
   );
 }
 
@@ -306,6 +300,12 @@ function ClientCrm({ b }: { b: AgendaBooking }) {
             Habitual: <strong className="font-medium text-ink">{c.favoriteService}</strong>
           </Chip>
         )}
+        <Link
+          href={`/admin/clientes/${c.id}`}
+          className="inline-flex items-center gap-1 rounded-full border border-ink/25 px-3 py-1 text-xs text-ink transition-colors hover:border-ink"
+        >
+          Ver ficha completa <ArrowUpRight aria-hidden className="size-3.5" />
+        </Link>
       </div>
 
       {c.history.length > 0 && (
